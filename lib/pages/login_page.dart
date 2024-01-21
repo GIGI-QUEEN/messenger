@@ -1,8 +1,8 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:secure_messenger/auth/auth_service.dart';
-import 'package:secure_messenger/components/my_button.dart';
-import 'package:secure_messenger/components/my_text_field.dart';
+
+import '../components/my_button.dart';
+import '../components/my_text_field.dart';
+import '../services/auth/auth_service.dart';
 
 class LoginPage extends StatelessWidget {
   // text controller
@@ -20,11 +20,11 @@ class LoginPage extends StatelessWidget {
   // login method
   void login(BuildContext context) async {
     // auth service
-    final _authService = AuthService();
+    final authService = AuthService();
 
     // try login
     try {
-      await _authService.signInWithEmailPassword(
+      await authService.signInWithEmailPassword(
         _emailController.text,
         _passwordController.text,
       );
@@ -32,6 +32,7 @@ class LoginPage extends StatelessWidget {
 
     // catch errors
     catch (e) {
+      // ignore: use_build_context_synchronously
       showDialog(
         context: context,
         builder: (context) => AlertDialog(

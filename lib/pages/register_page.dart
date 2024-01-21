@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:secure_messenger/auth/auth_service.dart';
+import 'package:secure_messenger/services/auth/auth_service.dart';
 
 import '../components/my_button.dart';
 import '../components/my_text_field.dart';
@@ -19,12 +19,15 @@ class RegisterPage extends StatelessWidget {
 
   void register(BuildContext context) {
     // get auth service
-    final _auth = AuthService();
+    final auth = AuthService();
 
+    // passwords match -> create user
     if (_passwordController.text == _confirmPasswordController.text) {
       try {
-        _auth.signInWithEmailPassword(
-            _emailController.text, _passwordController.text);
+        auth.signUpWithEmailPassword(
+          _emailController.text,
+          _passwordController.text,
+        );
       } catch (e) {
         showDialog(
           context: context,
@@ -33,13 +36,15 @@ class RegisterPage extends StatelessWidget {
           ),
         );
       }
+
+      // passwords don't match -> tell user to fix
     } else {
       showDialog(
-          context: context,
-          builder: (context) => const AlertDialog(
-            title: Text('Passwords don\'t match!'),
-          ),
-        );
+        context: context,
+        builder: (context) => const AlertDialog(
+          title: Text('Passwords don\'t match!'),
+        ),
+      );
     }
   }
 

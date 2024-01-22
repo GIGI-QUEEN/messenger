@@ -17,6 +17,7 @@ class RegisterPage extends StatelessWidget {
     required this.onTap,
   });
 
+  // register method
   void register(BuildContext context) {
     // get auth service
     final auth = AuthService();

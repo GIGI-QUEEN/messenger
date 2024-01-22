@@ -1,30 +1,50 @@
 import 'package:flutter/material.dart';
+import 'package:local_auth/local_auth.dart';
 
 import '../components/my_button.dart';
 import '../components/my_textfield.dart';
 import '../services/auth/auth_service.dart';
 
-class LoginPage extends StatelessWidget {
-  // text controller
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-
-  // tap to go to register page
+class LoginPage extends StatefulWidget {
   final void Function()? onTap;
 
-  LoginPage({
+  const LoginPage({
     super.key,
     required this.onTap,
   });
 
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  // text controller
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  late final LocalAuthentication auth;
+  // ignore: unused_field
+  bool _isAuthenticated = false;
+
+  @override
+  void initState() {
+    super.initState();
+    auth = LocalAuthentication();
+    checkBiometricAuth();
+  }
+
+  Future<void> checkBiometricAuth() async {
+    _isAuthenticated = await AuthService.authenticateUser();
+    setState(() {});
+  }
+
   // login method
   void login(BuildContext context) async {
     // auth service
-    final authService = AuthService();
+    final auth = AuthService();
 
     // try login
     try {
-      await authService.signInWithEmailPassword(
+      auth.signInWithEmailPassword(
         _emailController.text,
         _passwordController.text,
       );
@@ -32,7 +52,6 @@ class LoginPage extends StatelessWidget {
 
     // catch errors
     catch (e) {
-      // ignore: use_build_context_synchronously
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -85,7 +104,6 @@ class LoginPage extends StatelessWidget {
                   const SizedBox(height: 10),
 
                   // password textfield
-
                   MyTextField(
                     controller: _passwordController,
                     hintText: 'Password',
@@ -109,14 +127,17 @@ class LoginPage extends StatelessWidget {
                       const Text('Not a member?'),
                       const SizedBox(width: 4),
                       GestureDetector(
-                        onTap: onTap,
+                        onTap: widget.onTap,
                         child: const Text(
                           'Register now',
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ),
                     ],
-                  )
+                  ),
+                  const Divider(
+                    height: 100,
+                  ),
                 ],
               ),
             ),
@@ -126,5 +147,3 @@ class LoginPage extends StatelessWidget {
     );
   }
 }
-
-void login() {}

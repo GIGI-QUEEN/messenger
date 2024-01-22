@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../pages/search_page.dart';
 import '../services/auth/auth_service.dart';
 import '../pages/settings_page.dart';
 
@@ -41,6 +42,24 @@ class MyDrawer extends StatelessWidget {
                     onTap: () {
                       // pop the drawer
                       Navigator.pop(context);
+                    },
+                  ),
+                ),
+
+                // search list tile
+                Padding(
+                  padding: const EdgeInsets.only(left: 25.0),
+                  child: ListTile(
+                    title: const Text('S E A R C H'),
+                    leading: const Icon(Icons.add_box_outlined),
+                    onTap: () {
+                      // navigate to search page
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => SearchPage(),
+                        ),
+                      );
                     },
                   ),
                 ),

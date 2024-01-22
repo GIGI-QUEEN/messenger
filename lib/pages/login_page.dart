@@ -24,17 +24,23 @@ class _LoginPageState extends State<LoginPage> {
   late final LocalAuthentication auth;
   // ignore: unused_field
   bool _isAuthenticated = false;
+  // ignore: unused_field
+  bool _isMounted = false;
 
   @override
   void initState() {
     super.initState();
+    _isMounted = true;
     auth = LocalAuthentication();
     checkBiometricAuth();
   }
 
   Future<void> checkBiometricAuth() async {
+    if (!_isMounted) return;
     _isAuthenticated = await AuthService.authenticateUser();
-    setState(() {});
+    if (_isMounted) {
+      setState(() {});
+    }
   }
 
   // login method
@@ -59,6 +65,12 @@ class _LoginPageState extends State<LoginPage> {
         ),
       );
     }
+  }
+
+  @override
+  void dispose() {
+    _isMounted = false;
+    super.dispose();
   }
 
   @override

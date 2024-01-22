@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:secure_messenger/models/message.dart';
@@ -18,6 +20,68 @@ class ChatService {
         return user;
       }).toList();
     });
+  }
+
+  // get contact stream
+  Stream<List<Map<String, dynamic>>> getContactsStream(String currentUserID) {
+    return _firestore
+        .collection('users')
+        .doc(currentUserID)
+        .collection('contacts')
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.map((doc) {
+        // go through each individual contact
+        final contact = doc.data();
+
+        // return contact
+        return contact;
+      }).toList();
+    });
+  }
+
+  // add user to contacts
+  Future<void> addUserToContacts(String otherUserEmail) async {
+    // get current user info
+    final String currentUserID = _auth.currentUser!.uid;
+
+    // retrieve the other user's document based on their email
+    QuerySnapshot otherUserSnapshot = await _firestore
+        .collection('users')
+        .where('email', isEqualTo: otherUserEmail)
+        .get();
+
+    if (otherUserSnapshot.docs.isNotEmpty) {
+      // get the other user's ID
+      String otherUserID = otherUserSnapshot.docs.first.id;
+
+      // create a map representing the contact details
+      Map<String, dynamic> contactData = {
+        'email': otherUserEmail,
+        'uid': otherUserID,
+      };
+
+      // add the contact to the current user's contacts
+      await _firestore
+          .collection('users')
+          .doc(currentUserID)
+          .collection('contacts')
+          .doc(otherUserID)
+          .set(contactData);
+
+      // add the current user to the other user's contacts (if needed)
+      /* await _firestore
+        .collection('users')
+        .doc(otherUserID)
+        .collection('contacts')
+        .doc(currentUserID)
+        .set({
+      'email': currentUserEmail,
+    }); */
+    } else {
+      // handle the case where the user with the specified email was not found
+      log('User with email $otherUserEmail not found.');
+    }
   }
 
   // send message

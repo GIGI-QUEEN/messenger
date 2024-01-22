@@ -1,21 +1,25 @@
 import 'package:flutter/material.dart';
 
 class MyTextField extends StatelessWidget {
-  final TextEditingController controller;
   final String hintText;
   final bool obscureText;
+  final TextEditingController controller;
+  final FocusNode? focusNode;
+
   const MyTextField({
     super.key,
-    required this.controller,
     required this.hintText,
     required this.obscureText,
+    required this.controller,
+    this.focusNode,
   });
 
   @override
   Widget build(BuildContext context) {
     return TextField(
-      controller: controller,
       obscureText: obscureText,
+      controller: controller,
+      focusNode: focusNode,
       decoration: InputDecoration(
         enabledBorder: OutlineInputBorder(
           borderSide: BorderSide(

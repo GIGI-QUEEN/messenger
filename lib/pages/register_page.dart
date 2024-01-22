@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:secure_messenger/services/auth/auth_service.dart';
 
 import '../components/my_button.dart';
-import '../components/my_text_field.dart';
+import '../components/my_textfield.dart';
 
 class RegisterPage extends StatelessWidget {
   final _emailController = TextEditingController();

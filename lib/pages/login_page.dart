@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../components/my_button.dart';
-import '../components/my_text_field.dart';
+import '../components/my_textfield.dart';
 import '../services/auth/auth_service.dart';
 
 class LoginPage extends StatelessWidget {

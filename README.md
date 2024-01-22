@@ -1,16 +1,13 @@
 # secure_messenger
 
-A new Flutter project.
 
-## Getting Started
+## Resources
 
-This project is a starting point for a Flutter application.
+- [FlutterFire Cloud Messaging](https://firebase.flutter.dev/docs/messaging/usage)
+- [Mitch Koko](https://www.youtube.com/watch?v=5xU5WH2kEc0)
+- [Mitch Koko 2](https://www.youtube.com/watch?v=A3M0N_B-CR0)
+- [User search](https://www.youtube.com/watch?v=2d1fslyxBjQ)
 
-A few resources to get you started if this is your first Flutter project:
+## Audit
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+-[https://github.com/01-edu/public/tree/master/subjects/mobile-dev/secure-messenger](https://github.com/01-edu/public/tree/master/subjects/mobile-dev/secure-messenger)

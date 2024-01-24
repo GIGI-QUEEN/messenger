@@ -4,8 +4,7 @@
 ## Resources
 
 - [FlutterFire Cloud Messaging](https://firebase.flutter.dev/docs/messaging/usage)
-- [Mitch Koko](https://www.youtube.com/watch?v=5xU5WH2kEc0) Basic Messenger
-- [Mitch Koko 2](https://www.youtube.com/watch?v=A3M0N_B-CR0) Push Notifications
+- Mitch Koko: [Basic Messenger](https://www.youtube.com/watch?v=5xU5WH2kEc0), [Push Notifications](https://www.youtube.com/watch?v=A3M0N_B-CR0), [User Profile](https://www.youtube.com/watch?v=TpW7nLL57uQ)
 - [User search](https://www.youtube.com/watch?v=2d1fslyxBjQ) 
 
 ## Audit

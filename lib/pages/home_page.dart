@@ -7,13 +7,38 @@ import 'package:secure_messenger/services/chat/chat_service.dart';
 import '../components/my_drawer.dart';
 import '../components/user_tile.dart';
 import 'chat_page.dart';
+import 'profile_page.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   HomePage({super.key});
 
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
 // chat and auth service
   final ChatService _chatService = ChatService();
+
   final AuthService _authService = AuthService();
+
+  void logout() {
+    // get auth service
+    final auth = AuthService();
+    auth.signOut();
+  }
+
+  void goToProfilePage() {
+    // pop menu drawer
+    Navigator.pop(context);
+
+    // go to new page
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const ProfilePage(),
+        ));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +50,10 @@ class HomePage extends StatelessWidget {
         elevation: 0,
         foregroundColor: Colors.grey,
       ),
-      drawer: const MyDrawer(),
+      drawer: MyDrawer(
+        onProfileTap: goToProfilePage,
+        onSignOut: logout,
+      ),
       body: Column(children: [
         const SizedBox(height: 20),
 

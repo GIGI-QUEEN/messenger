@@ -4,6 +4,8 @@ import 'package:secure_messenger/services/auth/auth_gate.dart';
 import 'package:secure_messenger/firebase_options.dart';
 import 'package:secure_messenger/themes/light_mode.dart';
 
+// import 'services/qr/generate_qr_code.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -17,7 +19,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: const AuthGate(),
+      home: const AuthGate(), // const GenerateQRCode()
       theme: lightMode,
     );
   }

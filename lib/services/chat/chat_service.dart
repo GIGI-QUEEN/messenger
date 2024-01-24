@@ -51,6 +51,7 @@ class ChatService {
         .where('email', isEqualTo: otherUserEmail)
         .get();
 
+    // get a user
     if (otherUserSnapshot.docs.isNotEmpty) {
       // get the other user's ID
       String otherUserID = otherUserSnapshot.docs.first.id;

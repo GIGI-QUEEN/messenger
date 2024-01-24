@@ -73,6 +73,8 @@ class AuthService {
         {
           'uid': userCredential.user!.uid,
           'email': email,
+          'username': email,
+          'bio': 'Empty bio',
         },
       );
 

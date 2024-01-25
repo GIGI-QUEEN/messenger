@@ -29,14 +29,23 @@ class ChatService {
         .doc(currentUserID)
         .collection('contacts')
         .snapshots()
-        .map((snapshot) {
-      return snapshot.docs.map((doc) {
-        // go through each individual contact
-        final contact = doc.data();
+        .asyncMap((snapshot) async {
+      final contacts = await Future.wait(snapshot.docs.map((doc) async {
+        // retrieve contact information from the 'users' collection
+        final contactUserID = doc.id;
+        final contactData =
+            await _firestore.collection('users').doc(contactUserID).get();
 
-        // return contact
+        // combine contact information from the 'contacts' and 'users' collections
+        final contact = {
+          ...doc.data(),
+          'profile_image': contactData['profile_image'],
+        };
+
         return contact;
-      }).toList();
+      }).toList());
+
+      return contacts;
     });
   }
 
@@ -51,15 +60,20 @@ class ChatService {
         .where('email', isEqualTo: otherUserEmail)
         .get();
 
-    // get a user
+    // check if the user with the specified email exists
     if (otherUserSnapshot.docs.isNotEmpty) {
+      // get the other user's document
+      final otherUserDocument = otherUserSnapshot.docs.first;
       // get the other user's ID
-      String otherUserID = otherUserSnapshot.docs.first.id;
+      String otherUserID = otherUserDocument.id;
 
       // create a map representing the contact details
       Map<String, dynamic> contactData = {
-        'email': otherUserEmail,
         'uid': otherUserID,
+        'email': otherUserEmail,
+        'username': otherUserDocument['username'],
+        'bio': otherUserDocument['bio'],
+        'profile_image': otherUserDocument['profile_image'],
       };
 
       // add the contact to the current user's contacts

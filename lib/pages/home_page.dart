@@ -157,6 +157,7 @@ class _HomePageState extends State<HomePage> {
       log('userData: $userData');
       return UserTile(
         text: userData['email'],
+        imageURL: userData['profile_image'] ?? '',
         onTap:
             // tapped on a user -> go to chat page
             () => Navigator.push(
@@ -177,9 +178,10 @@ class _HomePageState extends State<HomePage> {
   Widget _buildContactListItem(
       Map<String, dynamic> userData, BuildContext context) {
     // display all users except current user
-    if (userData['email'] != _authService.getCurrentUser()!.email) {
+    if (userData['uid'] != _authService.getCurrentUser()!.uid) {
       return UserTile(
         text: userData['email'],
+        imageURL: userData['profile_image'] ?? '',
         onTap:
             // tapped on a user -> go to chat page
             () => Navigator.push(

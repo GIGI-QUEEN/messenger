@@ -54,6 +54,8 @@ class AuthService {
 
       return userCredential;
     } on FirebaseAuthException catch (e) {
+      log('Error logging in');
+      // todo: notify user of error
       throw Exception(e.code);
     }
   }
@@ -75,6 +77,7 @@ class AuthService {
           'email': email,
           'username': email,
           'bio': 'Empty bio',
+          'profile_image': '',
         },
       );
 

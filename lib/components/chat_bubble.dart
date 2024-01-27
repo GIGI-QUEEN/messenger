@@ -62,15 +62,15 @@ class _ChatBubbleState extends State<ChatBubble> {
       margin: const EdgeInsets.all(10),
       child: IntrinsicWidth(
         child: GestureDetector(
-          onLongPress: deleteMessage,
+          onLongPress: widget.isCurrentUser ? deleteMessage : () {},
           child: Row(
             children: [
               Text(
                 widget.message,
                 style: const TextStyle(color: Colors.white),
               ),
-          
-             /*  // delete button
+
+              /*  // delete button
               if (widget.isCurrentUser)
                 DeleteButton(
                   context: context,

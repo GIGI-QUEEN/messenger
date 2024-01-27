@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:local_auth/local_auth.dart';
 
@@ -38,7 +39,7 @@ class AuthService {
   }
 
   // sign in
-  Future<UserCredential> signInWithEmailPassword(String email, password) async {
+  Future<UserCredential> signInWithEmailPassword(String email, password, Function wrongCredentialsMessage) async {
     try {
       // sign user in
       UserCredential userCredential = await _auth.signInWithEmailAndPassword(
@@ -54,8 +55,13 @@ class AuthService {
 
       return userCredential;
     } on FirebaseAuthException catch (e) {
+      if (e.code == 'invalid-credential' || e.code == 'invalid-email') {
+        log('Invalid credentials! Try again');
+        wrongCredentialsMessage();
+      }
       log('Error logging in');
       // todo: notify user of error
+      log(e.code);
       throw Exception(e.code);
     }
   }

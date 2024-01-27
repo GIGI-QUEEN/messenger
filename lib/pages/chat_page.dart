@@ -1,9 +1,13 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:secure_messenger/components/chat_bubble.dart';
 import 'package:secure_messenger/components/my_textfield.dart';
 import 'package:secure_messenger/services/auth/auth_service.dart';
 import 'package:secure_messenger/services/chat/chat_service.dart';
+
+import '../components/delete_button.dart';
 
 class ChatPage extends StatefulWidget {
   final String receiverEmail;
@@ -62,7 +66,7 @@ class _ChatPageState extends State<ChatPage> {
 
   // scroll controller
   final ScrollController _scrollController = ScrollController();
-  
+
   void scrollDown() {
     _scrollController.animateTo(
       _scrollController.position.maxScrollExtent,
@@ -85,6 +89,10 @@ class _ChatPageState extends State<ChatPage> {
       const Duration(milliseconds: 500),
       () => scrollDown(),
     );
+  }
+
+  void deleteMessage(String chatroomID, String messageID) async {
+    await _chatService.deleteMessage(chatroomID, messageID);
   }
 
   @override
@@ -139,6 +147,7 @@ class _ChatPageState extends State<ChatPage> {
   // build message item
   Widget _buildMessageItem(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+    //
 
     // is current user
     bool isCurrentUser = data['senderID'] == _authService.getCurrentUser()!.uid;
@@ -153,8 +162,21 @@ class _ChatPageState extends State<ChatPage> {
         children: [
           ChatBubble(
             message: data['message'],
+            messageID: data['messageID'],
+            chatroomID: data['chatroomID'],
             isCurrentUser: isCurrentUser,
+            onDelete: () => deleteMessage(
+              data['chatroomID'],
+              data['messageID'],
+            ),
           ),
+
+          /*  // delete button
+          if (isCurrentUser)
+            DeleteButton(
+              context: context,
+              onTap: widget.onDelete,
+            ), */
         ],
       ),
     );

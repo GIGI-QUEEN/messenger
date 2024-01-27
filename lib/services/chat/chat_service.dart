@@ -106,26 +106,47 @@ class ChatService {
     final String currentUserEmail = _auth.currentUser!.email!;
     final Timestamp timestamp = Timestamp.now();
 
+    // construct chat room ID for the two users (sorted to ensure uniqueness)
+    List<String> ids = [currentUserID, receiverID];
+    ids.sort(); // (so that the chatroomID is same for both people)
+    String chatroomID = ids.join('_');
+
     // create a new message
     Message newMessage = Message(
       senderID: currentUserID,
       senderEmail: currentUserEmail,
       receiverID: receiverID,
       message: message,
+      chatroomID: chatroomID,
       timestamp: timestamp,
     );
 
-    // construct chat room ID for the two users (sorted to ensure uniqueness)
-    List<String> ids = [currentUserID, receiverID];
-    ids.sort(); // (so that the chatroomID is same for both people)
-    String chatroomID = ids.join('_');
-
     // add new message to database
-    _firestore
+    DocumentReference messageReference = await _firestore
         .collection('chat_rooms')
         .doc(chatroomID)
         .collection('messages')
-        .add(newMessage.toMap());
+        .add(
+      {
+        ...newMessage.toMap(),
+        'messageID': '',
+      },
+    );
+    // update the messageID field with the actual document ID
+    await messageReference.update({'messageID': messageReference.id});
+  }
+
+  Future<void> deleteMessage(String chatroomID, messageID) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('chat_rooms')
+          .doc(chatroomID)
+          .collection('messages')
+          .doc(messageID)
+          .delete();
+    } catch (e) {
+      log('Error deleting message: $e');
+    }
   }
 
   // get messages

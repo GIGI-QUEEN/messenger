@@ -1,12 +1,10 @@
 import 'dart:developer';
-import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 
 import '../components/my_textbox.dart';
+import '../services/chat/chat_service.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -16,10 +14,15 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  
+  // chat service
+    final ChatService _chatService = ChatService();
+
   // user
   final currentUser = FirebaseAuth.instance.currentUser!;
-  final usersCollection = FirebaseFirestore.instance.collection('users');
-  String imageURL = '';
+  
+  //final usersCollection = FirebaseFirestore.instance.collection('users');
+  //String imageURL = '';
 
   // edit field
   Future<void> editField(String field) async {
@@ -71,11 +74,11 @@ class _ProfilePageState extends State<ProfilePage> {
 
     //update in the firestore
     if (newValue.trim().isNotEmpty) {
-      await usersCollection.doc(currentUser.uid).update({field: newValue});
+      await FirebaseFirestore.instance.collection('users').doc(currentUser.uid).update({field: newValue});
     }
   }
 
-  // add profile image
+  /*  // add profile image
   Future<void> addProfileImage() async {
     // pick an image
     final ImagePicker picker = ImagePicker();
@@ -134,7 +137,7 @@ class _ProfilePageState extends State<ProfilePage> {
     final List<XFile> medias = await picker.pickMultipleMedia(); */
 
     // write to database
-  }
+  } */
 
   @override
   Widget build(BuildContext context) {
@@ -208,7 +211,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 color: Color.fromARGB(111, 35, 124, 168),
                               ),
                               onPressed: () {
-                                addProfileImage();
+                                _chatService.addProfileImage(currentUser.uid);
                               },
                             ),
                           ),

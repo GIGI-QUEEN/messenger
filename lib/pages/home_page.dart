@@ -19,7 +19,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
 // chat and auth service
   final ChatService _chatService = ChatService();
-
   final AuthService _authService = AuthService();
 
   void logout() {

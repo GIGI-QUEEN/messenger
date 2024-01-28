@@ -1,13 +1,13 @@
 import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:secure_messenger/components/chat_bubble.dart';
 import 'package:secure_messenger/components/my_textfield.dart';
+import 'package:secure_messenger/pages/image_bubble.dart';
 import 'package:secure_messenger/services/auth/auth_service.dart';
 import 'package:secure_messenger/services/chat/chat_service.dart';
-
-import '../components/delete_button.dart';
 
 class ChatPage extends StatefulWidget {
   final String receiverEmail;
@@ -30,6 +30,9 @@ class _ChatPageState extends State<ChatPage> {
   // chat and auth services
   final ChatService _chatService = ChatService();
   final AuthService _authService = AuthService();
+
+  // current user
+  final currentUser = FirebaseAuth.instance.currentUser!;
 
   // for textfield focus
   FocusNode myFocusNode = FocusNode();
@@ -84,6 +87,16 @@ class _ChatPageState extends State<ChatPage> {
       // clear text controller
       _messageController.clear();
     }
+
+    Future.delayed(
+      const Duration(milliseconds: 500),
+      () => scrollDown(),
+    );
+  }
+
+  // send image
+  void sendImage() async {
+    await _chatService.getImage(widget.receiverID);
 
     Future.delayed(
       const Duration(milliseconds: 500),
@@ -160,23 +173,30 @@ class _ChatPageState extends State<ChatPage> {
       alignment: alignment,
       child: Column(
         children: [
-          ChatBubble(
-            message: data['message'],
-            messageID: data['messageID'],
-            chatroomID: data['chatroomID'],
-            isCurrentUser: isCurrentUser,
-            onDelete: () => deleteMessage(
-              data['chatroomID'],
-              data['messageID'],
-            ),
-          ),
-
-          /*  // delete button
-          if (isCurrentUser)
-            DeleteButton(
-              context: context,
-              onTap: widget.onDelete,
-            ), */
+          data['type'] == 'Type.text'
+              ? ChatBubble(
+                  message: data['message'],
+                  messageID: data['messageID'],
+                  chatroomID: data['chatroomID'],
+                  isCurrentUser: isCurrentUser,
+                  onDelete: () => deleteMessage(
+                    data['chatroomID'],
+                    data['messageID'],
+                  ),
+                )
+              : data['type'] == 'Type.image'
+                  ? ImageBubble(
+                      message: data['message'],
+                      isCurrentUser: isCurrentUser,
+                      messageID: data['messageID'],
+                      chatroomID: data['chatroomID'],
+                      onDelete: () => deleteMessage(
+                        data['chatroomID'],
+                        data['messageID'],
+                      ),
+                    )
+                  // child: NetworkImage(data['imageUrl']))
+                  : const Text('todo: VIDEO'),
         ],
       ),
     );
@@ -200,13 +220,36 @@ class _ChatPageState extends State<ChatPage> {
               ),
             ),
           ),
+
+          // picture icon
+          IconButton(
+            onPressed: () {
+              log('choose picture');
+              sendImage();
+            },
+            icon: const Icon(Icons.image_outlined),
+            color: Colors.green,
+            iconSize: 30,
+          ),
+
+          // video icon
+
+          IconButton(
+            onPressed: () {
+              log('choose video');
+            },
+            icon: const Icon(Icons.video_camera_front_outlined),
+            color: Colors.green,
+            iconSize: 30,
+          ),
+
           // send button
           Container(
             decoration: const BoxDecoration(
               color: Colors.green,
               shape: BoxShape.circle,
             ),
-            margin: const EdgeInsets.only(right: 25, left: 25),
+            margin: const EdgeInsets.only(right: 25, left: 5),
             child: IconButton(
               onPressed: sendMessage,
               icon: const Icon(

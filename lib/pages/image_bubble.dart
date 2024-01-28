@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class ChatBubble extends StatefulWidget {
+class ImageBubble extends StatefulWidget {
   final String message;
   final bool isCurrentUser;
   final String messageID;
   final String chatroomID;
   final Function onDelete;
 
-  const ChatBubble({
+  const ImageBubble({
     super.key,
     required this.message,
     required this.isCurrentUser,
@@ -17,10 +17,10 @@ class ChatBubble extends StatefulWidget {
   });
 
   @override
-  State<ChatBubble> createState() => _ChatBubbleState();
+  State<ImageBubble> createState() => _ImageBubbleState();
 }
 
-class _ChatBubbleState extends State<ChatBubble> {
+class _ImageBubbleState extends State<ImageBubble> {
   // delete a message
   void deleteMessage() {
     // show dialog box asking for confirmation
@@ -64,9 +64,10 @@ class _ChatBubbleState extends State<ChatBubble> {
           onLongPress: widget.isCurrentUser ? deleteMessage : () {},
           child: Row(
             children: [
-              Text(
-                widget.message,
-                style: const TextStyle(color: Colors.white),
+              Container(
+                height: 60,
+                width: 60,
+                child: Image.network(widget.message),
               ),
             ],
           ),

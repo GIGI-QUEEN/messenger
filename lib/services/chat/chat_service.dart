@@ -1,7 +1,11 @@
+import 'package:uuid/uuid.dart';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:secure_messenger/models/message.dart';
 
 class ChatService {
@@ -47,6 +51,126 @@ class ChatService {
 
       return contacts;
     });
+  }
+
+  Future getImage(String receiverID) async {
+    var imageFile = File('');
+
+    ImagePicker picker = ImagePicker();
+    await picker.pickImage(source: ImageSource.gallery).then((xFile) async {
+      if (xFile != null) {
+        imageFile = File(xFile.path);
+        log(imageFile.path);
+        await uploadImage(receiverID, imageFile);
+      }
+    });
+  }
+
+  Future<void> uploadImage(String receiverID, File imageFile) async {
+    final String currentUserID = _auth.currentUser!.uid;
+    final String currentUserEmail = _auth.currentUser!.email!;
+    final Timestamp timestamp = Timestamp.now();
+
+    String chatroomID = constructChatRoomID(currentUserID, receiverID);
+    String fileName = const Uuid().v1();
+    var ref =
+        FirebaseStorage.instance.ref().child('images').child('$fileName.jpg');
+    var uploadTask = await ref.putFile(imageFile);
+    String imageUrl = await uploadTask.ref.getDownloadURL();
+
+    try {
+      // create a new message
+      Message newMessage = Message(
+        senderID: currentUserID,
+        senderEmail: currentUserEmail,
+        receiverID: receiverID,
+        message: imageUrl,
+        chatroomID: chatroomID,
+        timestamp: timestamp,
+        type: Type.image,
+      );
+
+      // add new message to database
+      DocumentReference messageReference = await _firestore
+          .collection('chat_rooms')
+          .doc(chatroomID)
+          .collection('messages')
+          .add(
+        {
+          ...newMessage.toMap(),
+          'messageID': '',
+        },
+      );
+
+      // update the messageID field with the actual document ID
+      await messageReference.update({'messageID': messageReference.id});
+    }
+    // handle errors
+    catch (error) {
+      log('error: $error');
+    }
+  }
+
+  // add profile image
+  Future<void> addProfileImage(String currentUserID) async {
+    // pick an image
+    final ImagePicker picker = ImagePicker();
+    XFile? image = await picker.pickImage(source: ImageSource.gallery);
+    print('${image?.path}');
+
+    if (image == null) return;
+
+    // create a unique name
+    String uniqueFileName =
+        '${currentUserID}_${DateTime.now().microsecondsSinceEpoch}';
+
+    // get a reference to storage root
+    Reference referenceRoot = FirebaseStorage.instance.ref();
+    Reference referenceDirImages = referenceRoot.child('profile_images/');
+
+    // create a reference for the profile image to be stored
+    Reference referenceImageToUpload = referenceDirImages.child(uniqueFileName);
+
+    try {
+      // upload image to storage
+      await referenceImageToUpload.putFile(File(image.path));
+      // get download url
+      String imageURL = await referenceImageToUpload.getDownloadURL();
+      log('imageURL: $imageURL');
+
+      // update user document in storage with the new image url
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUserID)
+          .update({'profile_image': imageURL});
+
+      // get the download url
+      Reference httpsReference = FirebaseStorage.instance.ref(imageURL);
+      log('httpsReference: $httpsReference');
+    }
+    // handle errors
+    catch (error) {
+      log('error: $error');
+    }
+
+/* // Pick an image.
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+// Capture a photo.
+    final XFile? photo = await picker.pickImage(source: ImageSource.camera);
+// Pick a video.
+    final XFile? galleryVideo =
+        await picker.pickVideo(source: ImageSource.gallery);
+// Capture a video.
+    final XFile? cameraVideo =
+        await picker.pickVideo(source: ImageSource.camera);
+// Pick multiple images.
+    final List<XFile> images = await picker.pickMultiImage();
+// Pick singe image or video.
+    final XFile? media = await picker.pickMedia();
+// Pick multiple images and videos.
+    final List<XFile> medias = await picker.pickMultipleMedia(); */
+
+    // write to database
   }
 
   // add user to contacts
@@ -99,17 +223,23 @@ class ChatService {
     }
   }
 
+  String constructChatRoomID(String currentUserID, receiverID) {
+    // construct chat room ID for the two users (sorted to ensure uniqueness)
+    List<String> ids = [currentUserID, receiverID];
+    ids.sort(); // (so that the chatroomID is same for both people)
+    return ids.join('_');
+  }
+
   // send message
   Future<void> sendMessage(String receiverID, message) async {
+    log('message is: $message');
     // get current user info
     final String currentUserID = _auth.currentUser!.uid;
     final String currentUserEmail = _auth.currentUser!.email!;
     final Timestamp timestamp = Timestamp.now();
 
-    // construct chat room ID for the two users (sorted to ensure uniqueness)
-    List<String> ids = [currentUserID, receiverID];
-    ids.sort(); // (so that the chatroomID is same for both people)
-    String chatroomID = ids.join('_');
+    String chatroomID = constructChatRoomID(currentUserID, receiverID);
+    log('chatroomid: $chatroomID');
 
     // create a new message
     Message newMessage = Message(
@@ -119,6 +249,7 @@ class ChatService {
       message: message,
       chatroomID: chatroomID,
       timestamp: timestamp,
+      type: Type.text,
     );
 
     // add new message to database
@@ -152,9 +283,7 @@ class ChatService {
   // get messages
   Stream<QuerySnapshot> getMessages(String userID, otherUserID) {
     // construct a chatroom ID for the two users
-    List<String> ids = [userID, otherUserID];
-    ids.sort();
-    String chatroomID = ids.join('_');
+    String chatroomID = constructChatRoomID(userID, otherUserID);
 
     return _firestore
         .collection('chat_rooms')

@@ -2,6 +2,8 @@ import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+enum Type { text, image, video }
+
 class Message {
   //final String id;
   final String senderID;
@@ -10,6 +12,7 @@ class Message {
   final String message;
   final String chatroomID;
   final Timestamp timestamp;
+  final Type type;
 
   Message({
     //required this.id,
@@ -19,6 +22,7 @@ class Message {
     required this.message,
     required this.chatroomID,
     required this.timestamp,
+    required this.type,
   });
 
   // convert to a map
@@ -31,6 +35,7 @@ class Message {
       'message': message,
       'chatroomID': chatroomID,
       'timestamp': timestamp,
+      'type': type.toString(),
     };
   }
 }

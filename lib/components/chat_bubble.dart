@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 
 class ChatBubble extends StatefulWidget {
@@ -6,6 +8,7 @@ class ChatBubble extends StatefulWidget {
   final String messageID;
   final String chatroomID;
   final Function onDelete;
+  final Function(String editedMessage) onChange;
 
   const ChatBubble({
     super.key,
@@ -14,6 +17,7 @@ class ChatBubble extends StatefulWidget {
     required this.messageID,
     required this.chatroomID,
     required this.onDelete,
+    required this.onChange,
   });
 
   @override
@@ -21,30 +25,100 @@ class ChatBubble extends StatefulWidget {
 }
 
 class _ChatBubbleState extends State<ChatBubble> {
+  // message controller
+  late TextEditingController _editingController;
+
+  late String _editedMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _editingController = TextEditingController();
+    _editedMessage = widget.message;
+  }
+
+  @override
+  void dispose() {
+    _editingController.dispose();
+    super.dispose();
+  }
+
   // delete a message
-  void deleteMessage() {
+  void deleteOrEditMessage() {
     // show dialog box asking for confirmation
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete message'),
-        content: const Text('Are you sure you want to delete this message?'),
         actions: [
-          // cancel button
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+          Padding(
+            padding: const EdgeInsets.only(top: 25.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // cancel button
+                IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  iconSize: 25,
+                  onPressed: () => Navigator.pop(context),
+                ),
+                // edit button
+                IconButton(
+                  icon: const Icon(Icons.edit),
+                  iconSize: 25,
+                  onPressed: () {
+                    log('edit message');
+                    Navigator.pop(context);
+                    startEditing();
+                  },
+                ),
+                // delete button
+                IconButton(
+                  icon: const Icon(Icons.delete),
+                  iconSize: 25,
+                  onPressed: () async {
+                    // invoke onDelete function
+                    widget.onDelete();
+                    // dismiss the dialog
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            ),
           ),
-          // delete button
+        ],
+      ),
+    );
+  }
+
+  // start editing message process
+  void startEditing() {
+    log('in startEditing');
+    _editingController.text = _editedMessage;
+    log('message: ${_editingController.text}');
+
+    // show a dialog with a text input for editing
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Edit Message'),
+        content: TextField(
+          controller: _editingController,
+          onChanged: (editedText) {
+            setState(() {
+              _editedMessage = editedText;
+            });
+          },
+        ),
+        actions: [
+          // save button
           TextButton(
             onPressed: () async {
-              // invoke onDelete function
-              widget.onDelete();
-
+              // invoke onChange function
+              widget.onChange(_editedMessage);
               // dismiss the dialog
               Navigator.pop(context);
             },
-            child: const Text('Delete for everyone'),
+            child: const Text('Save'),
           ),
         ],
       ),
@@ -61,7 +135,7 @@ class _ChatBubbleState extends State<ChatBubble> {
       margin: const EdgeInsets.all(10),
       child: IntrinsicWidth(
         child: GestureDetector(
-          onLongPress: widget.isCurrentUser ? deleteMessage : () {},
+          onLongPress: widget.isCurrentUser ? deleteOrEditMessage : () {},
           child: Row(
             children: [
               Text(

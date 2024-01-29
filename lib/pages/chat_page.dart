@@ -118,8 +118,12 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  void deleteMessage(String chatroomID, String messageID) async {
+  void deleteMessage(String chatroomID, messageID) async {
     await _chatService.deleteMessage(chatroomID, messageID);
+  }
+
+  void changeMessage(String chatroomID, messageID, newMessage) async {
+    await _chatService.changeMessage(chatroomID, messageID, newMessage);
   }
 
   @override
@@ -197,6 +201,11 @@ class _ChatPageState extends State<ChatPage> {
                   onDelete: () => deleteMessage(
                     data['chatroomID'],
                     data['messageID'],
+                  ),
+                  onChange: (newMessage) => changeMessage(
+                    data['chatroomID'],
+                    data['messageID'],
+                    newMessage,
                   ),
                 )
               : data['type'] == 'Type.image'

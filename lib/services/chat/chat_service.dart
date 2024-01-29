@@ -93,8 +93,7 @@ class ChatService {
         : FirebaseStorage.instance.ref().child('videos').child('$fileName');
     var uploadTask = type == Type.image
         ? await ref.putFile(file)
-        : await ref.putFile(
-            file, SettableMetadata(contentType: 'video/mp4'));
+        : await ref.putFile(file, SettableMetadata(contentType: 'video/mp4'));
 
     log('Image/Video Size: ${file.lengthSync()}');
 
@@ -287,6 +286,19 @@ class ChatService {
     );
     // update the messageID field with the actual document ID
     await messageReference.update({'messageID': messageReference.id});
+  }
+
+  Future<void> changeMessage(String chatroomID, messageID, newMessage) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('chat_rooms')
+          .doc(chatroomID)
+          .collection('messages')
+          .doc(messageID)
+          .update({'message': newMessage});
+    } catch (e) {
+      log('Error deleting message: $e');
+    }
   }
 
   Future<void> deleteMessage(String chatroomID, messageID) async {

@@ -129,7 +129,9 @@ class _ChatBubbleState extends State<ChatBubble> {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-          color: widget.isCurrentUser ? Colors.green : Colors.grey.shade500,
+          color: widget.isCurrentUser
+              ? const Color.fromARGB(255, 128, 223, 131)
+              : const Color.fromARGB(166, 165, 158, 189),
           borderRadius: BorderRadius.circular(15)),
       padding: const EdgeInsets.all(10),
       margin: const EdgeInsets.all(10),

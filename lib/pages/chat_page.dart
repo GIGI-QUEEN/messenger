@@ -236,62 +236,64 @@ class _ChatPageState extends State<ChatPage> {
 
   // build message input
   Widget _buildUserInput() {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 50.0),
-      child: Row(
-        children: [
-          // textfield
-          Expanded(
-            child: Container(
-              margin: const EdgeInsets.only(left: 25),
-              child: MyTextField(
-                controller: _messageController,
-                hintText: 'Type a message',
-                obscureText: false,
-                focusNode: myFocusNode,
-              ),
-            ),
-          ),
-
-          // picture icon
-          IconButton(
-            onPressed: () {
-              log('choose picture');
-              sendImage();
-            },
-            icon: const Icon(Icons.image_outlined),
-            color: Colors.green,
-            iconSize: 30,
-          ),
-
-          // video icon
-
-          IconButton(
-            onPressed: () {
-              log('choose video');
-              sendVideo();
-            },
-            icon: const Icon(Icons.video_camera_front_outlined),
-            color: Colors.green,
-            iconSize: 30,
-          ),
-
-          // send button
-          Container(
-            decoration: const BoxDecoration(
+    return Container(
+      color: const Color.fromARGB(10, 110, 46, 26),
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 20.0, top: 20.0), 
+        child: Row(
+          children: [
+            // picture icon
+            IconButton(
+              onPressed: () {
+                log('choose picture');
+                sendImage();
+              },
+              icon: const Icon(Icons.image_outlined),
               color: Colors.green,
-              shape: BoxShape.circle,
+              iconSize: 30,
             ),
-            margin: const EdgeInsets.only(right: 25, left: 5),
-            child: IconButton(
-              onPressed: sendMessage,
-              icon: const Icon(
-                Icons.arrow_upward,
-                color: Colors.white,
+      
+            // video icon
+            IconButton(
+              onPressed: () {
+                log('choose video');
+                sendVideo();
+              },
+              icon: const Icon(Icons.video_camera_front_outlined),
+              color: Colors.green,
+              iconSize: 30,
+            ),
+      
+            // textfield
+            Expanded(
+              child: Container(
+                margin: const EdgeInsets.only(left: 5, right: 5),
+                child: MyTextField(
+                  controller: _messageController,
+                  hintText: 'Type a message',
+                  obscureText: false,
+                  focusNode: myFocusNode,
+                ),
               ),
             ),
-          ),
-        ],
+      
+            // send button
+            Container(
+              decoration: const BoxDecoration(
+                color: Colors.green,
+                shape: BoxShape.circle,
+              ),
+              margin: const EdgeInsets.only(right: 10, left: 5),
+              child: IconButton(
+                onPressed: sendMessage,
+                icon: const Icon(
+                  Icons.arrow_upward,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

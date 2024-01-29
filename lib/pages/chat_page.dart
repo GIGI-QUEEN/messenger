@@ -1,13 +1,15 @@
-import 'dart:developer';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'dart:developer';
+
 import 'package:secure_messenger/components/chat_bubble.dart';
 import 'package:secure_messenger/components/my_textfield.dart';
-import 'package:secure_messenger/pages/image_bubble.dart';
+import 'package:secure_messenger/components/image_bubble.dart';
 import 'package:secure_messenger/services/auth/auth_service.dart';
 import 'package:secure_messenger/services/chat/chat_service.dart';
+
+import '../components/video_bubble.dart';
 
 class ChatPage extends StatefulWidget {
   final String receiverEmail;
@@ -26,6 +28,9 @@ class ChatPage extends StatefulWidget {
 class _ChatPageState extends State<ChatPage> {
   // text controller
   final TextEditingController _messageController = TextEditingController();
+
+  // scroll controller
+  final ScrollController _scrollController = ScrollController();
 
   // chat and auth services
   final ChatService _chatService = ChatService();
@@ -64,11 +69,9 @@ class _ChatPageState extends State<ChatPage> {
   void dispose() {
     myFocusNode.dispose();
     _messageController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
-
-  // scroll controller
-  final ScrollController _scrollController = ScrollController();
 
   void scrollDown() {
     _scrollController.animateTo(
@@ -97,6 +100,17 @@ class _ChatPageState extends State<ChatPage> {
   // send image
   void sendImage() async {
     await _chatService.getImage(widget.receiverID);
+
+    Future.delayed(
+      const Duration(milliseconds: 500),
+      () => scrollDown(),
+    );
+  }
+
+  // send image
+  void sendVideo() async {
+    log('in sendvideo');
+    await _chatService.getVideo(widget.receiverID);
 
     Future.delayed(
       const Duration(milliseconds: 500),
@@ -169,6 +183,7 @@ class _ChatPageState extends State<ChatPage> {
     var alignment =
         isCurrentUser ? Alignment.centerRight : Alignment.centerLeft;
 
+    log('message: ${data['message']}');
     return Container(
       alignment: alignment,
       child: Column(
@@ -195,8 +210,16 @@ class _ChatPageState extends State<ChatPage> {
                         data['messageID'],
                       ),
                     )
-                  // child: NetworkImage(data['imageUrl']))
-                  : const Text('todo: VIDEO'),
+                  : VideoBubble(
+                      message: data['message'],
+                      isCurrentUser: isCurrentUser,
+                      messageID: data['messageID'],
+                      chatroomID: data['chatroomID'],
+                      onDelete: () => deleteMessage(
+                        data['chatroomID'],
+                        data['messageID'],
+                      ),
+                    ),
         ],
       ),
     );
@@ -237,6 +260,7 @@ class _ChatPageState extends State<ChatPage> {
           IconButton(
             onPressed: () {
               log('choose video');
+              sendVideo();
             },
             icon: const Icon(Icons.video_camera_front_outlined),
             color: Colors.green,

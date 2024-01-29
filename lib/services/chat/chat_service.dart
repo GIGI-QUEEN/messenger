@@ -61,22 +61,44 @@ class ChatService {
       if (xFile != null) {
         imageFile = File(xFile.path);
         log(imageFile.path);
-        await uploadImage(receiverID, imageFile);
+        await uploadImageOrVideo(receiverID, imageFile, Type.image);
       }
     });
   }
 
-  Future<void> uploadImage(String receiverID, File imageFile) async {
+  Future getVideo(String receiverID) async {
+    log('in getvideo');
+    var videoFile = File('');
+
+    ImagePicker picker = ImagePicker();
+    await picker.pickVideo(source: ImageSource.gallery).then((xFile) async {
+      if (xFile != null) {
+        videoFile = File(xFile.path);
+        log(videoFile.path);
+        await uploadImageOrVideo(receiverID, videoFile, Type.video);
+      }
+    });
+  }
+
+  Future<void> uploadImageOrVideo(
+      String receiverID, File file, Type type) async {
     final String currentUserID = _auth.currentUser!.uid;
     final String currentUserEmail = _auth.currentUser!.email!;
     final Timestamp timestamp = Timestamp.now();
 
     String chatroomID = constructChatRoomID(currentUserID, receiverID);
     String fileName = const Uuid().v1();
-    var ref =
-        FirebaseStorage.instance.ref().child('images').child('$fileName.jpg');
-    var uploadTask = await ref.putFile(imageFile);
-    String imageUrl = await uploadTask.ref.getDownloadURL();
+    var ref = type == Type.image
+        ? FirebaseStorage.instance.ref().child('images').child('$fileName')
+        : FirebaseStorage.instance.ref().child('videos').child('$fileName');
+    var uploadTask = type == Type.image
+        ? await ref.putFile(file)
+        : await ref.putFile(
+            file, SettableMetadata(contentType: 'video/mp4'));
+
+    log('Image/Video Size: ${file.lengthSync()}');
+
+    String fileUrl = await uploadTask.ref.getDownloadURL();
 
     try {
       // create a new message
@@ -84,10 +106,10 @@ class ChatService {
         senderID: currentUserID,
         senderEmail: currentUserEmail,
         receiverID: receiverID,
-        message: imageUrl,
+        message: fileUrl,
         chatroomID: chatroomID,
         timestamp: timestamp,
-        type: Type.image,
+        type: type,
       );
 
       // add new message to database

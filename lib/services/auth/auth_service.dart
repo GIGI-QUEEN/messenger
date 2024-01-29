@@ -39,30 +39,23 @@ class AuthService {
   }
 
   // sign in
-  Future<UserCredential> signInWithEmailPassword(String email, password, Function wrongCredentialsMessage) async {
+  Future<UserCredential?> signInWithEmailPassword(
+      String email, password, Function wrongCredentialsMessage) async {
     try {
       // sign user in
       UserCredential userCredential = await _auth.signInWithEmailAndPassword(
           email: email, password: password);
-
-      // save user info if it doesn't already exist
-      _firestore.collection('users').doc(userCredential.user!.uid).set(
-        {
-          'uid': userCredential.user!.uid,
-          'email': email,
-        },
-      );
-
       return userCredential;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'invalid-credential' || e.code == 'invalid-email') {
-        log('Invalid credentials! Try again');
+        log('Invalid credentials');
         wrongCredentialsMessage();
       }
       log('Error logging in');
       // todo: notify user of error
       log(e.code);
-      throw Exception(e.code);
+      wrongCredentialsMessage();
+      return null;
     }
   }
 
@@ -77,7 +70,7 @@ class AuthService {
       );
 
       // save user info in a separate document
-      _firestore.collection('users').doc(userCredential.user!.uid).set(
+      await _firestore.collection('users').doc(userCredential.user!.uid).set(
         {
           'uid': userCredential.user!.uid,
           'email': email,

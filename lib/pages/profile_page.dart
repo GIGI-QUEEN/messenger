@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -21,9 +20,6 @@ class _ProfilePageState extends State<ProfilePage> {
   // user
   final currentUser = FirebaseAuth.instance.currentUser!;
   
-  //final usersCollection = FirebaseFirestore.instance.collection('users');
-  //String imageURL = '';
-
   // edit field
   Future<void> editField(String field) async {
     String newValue = '';
@@ -77,67 +73,6 @@ class _ProfilePageState extends State<ProfilePage> {
       await FirebaseFirestore.instance.collection('users').doc(currentUser.uid).update({field: newValue});
     }
   }
-
-  /*  // add profile image
-  Future<void> addProfileImage() async {
-    // pick an image
-    final ImagePicker picker = ImagePicker();
-    XFile? image = await picker.pickImage(source: ImageSource.gallery);
-    print('${image?.path}');
-
-    if (image == null) return;
-
-    // create a unique name
-    String uniqueFileName =
-        '${currentUser.uid}_${DateTime.now().microsecondsSinceEpoch}';
-
-    // get a reference to storage root
-    Reference referenceRoot = FirebaseStorage.instance.ref();
-    Reference referenceDirImages = referenceRoot.child('profile_images/');
-
-    // create a reference for the profile image to be stored
-    Reference referenceImageToUpload = referenceDirImages.child(uniqueFileName);
-
-    try {
-      // upload image to storage
-      await referenceImageToUpload.putFile(File(image.path));
-      // get download url
-      imageURL = await referenceImageToUpload.getDownloadURL();
-      log('imageURL: $imageURL');
-
-      // update user document in storage with the new image url
-      await usersCollection
-          .doc(currentUser.uid)
-          .update({'profile_image': imageURL});
-
-      // get the download url
-      Reference httpsReference = FirebaseStorage.instance.ref(imageURL);
-      log('httpsReference: $httpsReference');
-    }
-    // handle errors
-    catch (error) {
-      log('error: $error');
-    }
-
-/* // Pick an image.
-    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-// Capture a photo.
-    final XFile? photo = await picker.pickImage(source: ImageSource.camera);
-// Pick a video.
-    final XFile? galleryVideo =
-        await picker.pickVideo(source: ImageSource.gallery);
-// Capture a video.
-    final XFile? cameraVideo =
-        await picker.pickVideo(source: ImageSource.camera);
-// Pick multiple images.
-    final List<XFile> images = await picker.pickMultiImage();
-// Pick singe image or video.
-    final XFile? media = await picker.pickMedia();
-// Pick multiple images and videos.
-    final List<XFile> medias = await picker.pickMultipleMedia(); */
-
-    // write to database
-  } */
 
   @override
   Widget build(BuildContext context) {

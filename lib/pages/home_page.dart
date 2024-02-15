@@ -1,6 +1,6 @@
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
+import 'package:secure_messenger/components/last_message.dart';
 import 'package:secure_messenger/services/auth/auth_service.dart';
 import 'package:secure_messenger/services/chat/chat_service.dart';
 
@@ -150,13 +150,15 @@ class _HomePageState extends State<HomePage> {
 
   // build individual list tile for user
   Widget _buildUserListItem(
-      Map<String, dynamic> userData, BuildContext context) {
+      Map<String, dynamic>? userData, BuildContext context) {
     // display all user except current user
-    if (userData['uid'] != _authService.getCurrentUser()!.uid) {
+    if (userData != null &&
+        userData['uid'] != _authService.getCurrentUser()!.uid) {
       log('userData: $userData');
       return UserTile(
         text: userData['email'],
         imageURL: userData['profile_image'] ?? '',
+        subtitle: null,
         onTap:
             // tapped on a user -> go to chat page
             () => Navigator.push(
@@ -173,27 +175,31 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  // build individual list tile for user
   Widget _buildContactListItem(
       Map<String, dynamic> userData, BuildContext context) {
-    // display all users except current user
-    if (userData['uid'] != _authService.getCurrentUser()!.uid) {
-      return UserTile(
-        text: userData['email'],
-        imageURL: userData['profile_image'] ?? '',
-        onTap:
-            // tapped on a user -> go to chat page
-            () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ChatPage(
-                    receiverEmail: userData['email'],
-                    receiverID: userData['uid'],
-                  ),
-                )),
-      );
-    } else {
-      return Container();
-    }
+    String chatRoomID = _chatService.constructChatRoomID(
+        userData['uid'], _authService.getCurrentUser()!.uid);
+    return Column(
+      children: [
+        UserTile(
+          text: userData['email'],
+          imageURL: userData['profile_image'] ?? '',
+          subtitle: LastMessageDisplay(
+            chatroomId: chatRoomID,
+            chatService: _chatService,
+          ),
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ChatPage(
+                receiverEmail: userData['email'],
+                receiverID: userData['uid'],
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
+      ],
+    );
   }
 }

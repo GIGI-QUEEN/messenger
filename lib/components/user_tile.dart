@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 class UserTile extends StatelessWidget {
   final String text;
   final String imageURL;
+  final Widget? subtitle;
   final void Function()? onTap;
 
   const UserTile({
     super.key,
     required this.text,
     required this.imageURL,
+    required this.subtitle,
     required this.onTap,
   });
 
@@ -41,7 +43,16 @@ class UserTile extends StatelessWidget {
           const SizedBox(
             width: 20,
           ),
-          Text(text),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(text),
+              if (subtitle != null) ...[
+                const SizedBox(height: 4),
+                subtitle!,
+              ],
+            ],
+          ),
         ]),
       ),
     );

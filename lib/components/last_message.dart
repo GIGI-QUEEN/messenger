@@ -7,10 +7,10 @@ class LastMessageDisplay extends StatelessWidget {
   final ChatService chatService;
 
   const LastMessageDisplay({
-    super.key,
+    Key? key,
     required this.chatroomId,
     required this.chatService,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -25,8 +25,21 @@ class LastMessageDisplay extends StatelessWidget {
           return const Text('');
         } else {
           final lastMessageData = snapshot.data!.data() as Map<String, dynamic>;
-          final lastMessage = lastMessageData['message'] ?? '';
-          return Text(lastMessage);
+          final messageType = lastMessageData['type'] as String?;
+          Widget messageWidget;
+
+          if (messageType == 'Type.text') {
+            final lastMessage = lastMessageData['message'] ?? '';
+            messageWidget = Text(lastMessage);
+          } else if (messageType == 'Type.image') {
+            messageWidget = const Icon(Icons.image_outlined);
+          } else if (messageType == 'Type.video') {
+            messageWidget = const Icon(Icons.video_library_outlined);
+          } else {
+            messageWidget = const Text('Unknown message type');
+          }
+
+          return messageWidget;
         }
       },
     );

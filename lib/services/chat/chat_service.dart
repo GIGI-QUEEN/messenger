@@ -46,6 +46,9 @@ class ChatService {
           'profile_image': contactData['profile_image'],
         };
 
+        log('Contact profile_image URL: ${contact['profile_image']}');
+        log('currentUserID: $currentUserID');
+
         return contact;
       }).toList());
 
@@ -137,27 +140,28 @@ class ChatService {
     // pick an image
     final ImagePicker picker = ImagePicker();
     XFile? image = await picker.pickImage(source: ImageSource.gallery);
-    print('${image?.path}');
+    //log('${image?.path}');
 
     if (image == null) return;
 
     // create a unique name
     String uniqueFileName =
         '${currentUserID}_${DateTime.now().microsecondsSinceEpoch}';
-
-    // get a reference to storage root
-    Reference referenceRoot = FirebaseStorage.instance.ref();
-    Reference referenceDirImages = referenceRoot.child('profile_images/');
-
-    // create a reference for the profile image to be stored
-    Reference referenceImageToUpload = referenceDirImages.child(uniqueFileName);
-
+    String imageURL = '';
     try {
+      // get a reference to storage root
+      Reference referenceRoot = FirebaseStorage.instance.ref();
+      Reference referenceDirImages = referenceRoot.child('profile_images/');
+
+      // create a reference for the profile image to be stored
+      Reference referenceImageToUpload =
+          referenceDirImages.child(uniqueFileName);
+
       // upload image to storage
       await referenceImageToUpload.putFile(File(image.path));
       // get download url
-      String imageURL = await referenceImageToUpload.getDownloadURL();
-      log('imageURL: $imageURL');
+      imageURL = await referenceImageToUpload.getDownloadURL();
+      //log('imageURL: $imageURL');
 
       // update user document in storage with the new image url
       await FirebaseFirestore.instance
@@ -165,33 +169,44 @@ class ChatService {
           .doc(currentUserID)
           .update({'profile_image': imageURL});
 
-      // get the download url
       Reference httpsReference = FirebaseStorage.instance.ref(imageURL);
       log('httpsReference: $httpsReference');
-    }
-    // handle errors
-    catch (error) {
+      // handle errors
+    } catch (error) {
       log('error: $error');
     }
 
-/* // Pick an image.
-    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-// Capture a photo.
-    final XFile? photo = await picker.pickImage(source: ImageSource.camera);
-// Pick a video.
-    final XFile? galleryVideo =
-        await picker.pickVideo(source: ImageSource.gallery);
-// Capture a video.
-    final XFile? cameraVideo =
-        await picker.pickVideo(source: ImageSource.camera);
-// Pick multiple images.
-    final List<XFile> images = await picker.pickMultiImage();
-// Pick singe image or video.
-    final XFile? media = await picker.pickMedia();
-// Pick multiple images and videos.
-    final List<XFile> medias = await picker.pickMultipleMedia(); */
+    try {
+      // update profile image in user's contacts
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUserID)
+          .collection('contacts')
+          .get();
 
-    // write to database
+      for (DocumentSnapshot ds in querySnapshot.docs) {
+        String contactUserID = ds.id;
+        await updateContactProfileImage(currentUserID, contactUserID, imageURL);
+      }
+      //log('Profile image added in contacts');
+      // handle errors
+    } catch (error) {
+      log('Error updating profile image in contacts: $error');
+    }
+  }
+
+  Future<void> updateContactProfileImage(String currentUserID,
+      String contactUserID, String profileImageURL) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(contactUserID)
+          .collection('contacts')
+          .doc(currentUserID)
+          .update({'profile_image': profileImageURL});
+    } catch (error) {
+      log('Error updating profile image for contact $contactUserID: $error');
+    }
   }
 
   // add user to contacts
@@ -325,5 +340,23 @@ class ChatService {
         .collection('messages')
         .orderBy('timestamp', descending: false)
         .snapshots();
+  }
+
+  // get the stream of the last message in the conversation
+  Stream<DocumentSnapshot?> getLastMessageStream(String chatroomId) {
+    return FirebaseFirestore.instance
+        .collection('chat_rooms')
+        .doc(chatroomId)
+        .collection('messages')
+        .orderBy('timestamp', descending: true)
+        .limit(1)
+        .snapshots()
+        .map((snapshot) {
+      if (snapshot.docs.isNotEmpty) {
+        return snapshot.docs.first;
+      } else {
+        return null;
+      }
+    });
   }
 }

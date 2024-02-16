@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 enum Type { text, image, video }
@@ -13,6 +11,7 @@ class Message {
   final String chatroomID;
   final Timestamp timestamp;
   final Type type;
+  final bool read;
 
   Message({
     //required this.id,
@@ -23,6 +22,7 @@ class Message {
     required this.chatroomID,
     required this.timestamp,
     required this.type,
+    this.read = false,
   });
 
   // convert to a map
@@ -36,6 +36,7 @@ class Message {
       'chatroomID': chatroomID,
       'timestamp': timestamp,
       'type': type.toString(),
+      'read': read,
     };
   }
 }

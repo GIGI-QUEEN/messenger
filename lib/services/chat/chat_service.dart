@@ -153,12 +153,12 @@ class ChatService {
           .add(
         {
           ...newMessage.toMap(),
-          'messageID': '',
+          'id': '',
         },
       );
 
-      // update the messageID field with the actual document ID
-      await messageReference.update({'messageID': messageReference.id});
+      // update the message id field with the actual document ID
+      await messageReference.update({'id': messageReference.id});
     }
     // handle errors
     catch (error) {
@@ -327,11 +327,11 @@ class ChatService {
         .add(
       {
         ...newMessage.toMap(),
-        'messageID': '',
+        'id': '',
       },
     );
-    // update the messageID field with the actual document ID
-    await messageReference.update({'messageID': messageReference.id});
+    // update the id field with the actual document ID
+    await messageReference.update({'id': messageReference.id});
 
     // check if the document exists
     final documentSnapshot =
@@ -376,10 +376,23 @@ class ChatService {
     // construct a chatroom ID for the two users
     String chatroomID = constructChatRoomID(userID, otherUserID);
 
-    return _firestore
+    CollectionReference messagesCollection = _firestore
         .collection('chat_rooms')
         .doc(chatroomID)
-        .collection('messages')
+        .collection('messages');
+
+    // mark messages as read
+    messagesCollection
+        .where('receiverID', isEqualTo: _auth.currentUser!.uid)
+        .where('read', isEqualTo: false)
+        .get()
+        .then((snapshot) {
+      for (DocumentSnapshot doc in snapshot.docs) {
+        doc.reference.update({'read': true});
+      }
+    });
+
+    return messagesCollection
         .orderBy('timestamp', descending: false)
         .snapshots();
   }
@@ -400,5 +413,25 @@ class ChatService {
         return null;
       }
     });
+  }
+
+  // update read status of a message
+  void markMessageAsRead(String chatroomId, String messageId) async {
+    // get reference to the message document
+    DocumentReference messageRef = FirebaseFirestore.instance
+        .collection('chat_rooms')
+        .doc(chatroomId)
+        .collection('messages')
+        .doc(messageId);
+
+    // update the read field to true
+    await messageRef.update({'read': true});
+  }
+
+// check if a message is read
+  bool isMessageRead(DocumentSnapshot message) {
+    // get the read field value from the message document
+    bool read = (message.data() as Map<String, dynamic>?)?['read'] ?? false;
+    return read;
   }
 }

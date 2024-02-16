@@ -5,8 +5,9 @@ import 'package:flutter/material.dart';
 class ChatBubble extends StatefulWidget {
   final String message;
   final bool isCurrentUser;
-  final String messageID;
+  final String id;
   final String chatroomID;
+  final bool read;
   final Function onDelete;
   final Function(String editedMessage) onChange;
 
@@ -14,8 +15,9 @@ class ChatBubble extends StatefulWidget {
     super.key,
     required this.message,
     required this.isCurrentUser,
-    required this.messageID,
+    required this.id,
     required this.chatroomID,
+    required this.read,
     required this.onDelete,
     required this.onChange,
   });
@@ -53,6 +55,7 @@ class _ChatBubbleState extends State<ChatBubble> {
           Padding(
             padding: const EdgeInsets.only(top: 25.0),
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 // cancel button
@@ -136,16 +139,33 @@ class _ChatBubbleState extends State<ChatBubble> {
       padding: const EdgeInsets.all(10),
       margin: const EdgeInsets.all(10),
       child: IntrinsicWidth(
-        child: GestureDetector(
-          onLongPress: widget.isCurrentUser ? deleteOrEditMessage : () {},
-          child: Row(
-            children: [
-              Text(
-                widget.message,
-                style: const TextStyle(color: Colors.white),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            GestureDetector(
+              onLongPress: widget.isCurrentUser ? deleteOrEditMessage : () {},
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    widget.message,
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  const SizedBox(width: 5),
+                  if (widget
+                      .isCurrentUser) //  show ticks for current user's messages
+
+                    Icon(
+                      widget.read
+                          ? Icons.done_all //  green ticks if message is read
+                          : Icons.done_all, // grey ticks if not read
+                      color: widget.read ? Colors.blue : Colors.grey,
+                      size: 18,
+                    ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

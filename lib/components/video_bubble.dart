@@ -5,16 +5,18 @@ import 'package:chewie/chewie.dart';
 class VideoBubble extends StatefulWidget {
   final String message;
   final bool isCurrentUser;
-  final String messageID;
+  final String id;
   final String chatroomID;
+  final bool read;
   final Function onDelete;
 
   const VideoBubble({
     Key? key,
     required this.message,
     required this.isCurrentUser,
-    required this.messageID,
+    required this.id,
     required this.chatroomID,
+    required this.read,
     required this.onDelete,
   }) : super(key: key);
 
@@ -93,12 +95,28 @@ class _VideoBubbleState extends State<VideoBubble> {
       child: GestureDetector(
         onLongPress: widget.isCurrentUser ? deleteMessage : () {},
         child: _videoPlayerController.value.isInitialized
-            ? Container(
-                height: 200,
-                width: 200,
-                child: Chewie(
-                  controller: _chewieController,
-                ),
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Container(
+                    height: 200,
+                    width: 200,
+                    child: Chewie(
+                      controller: _chewieController,
+                    ),
+                  ),
+                  const SizedBox(width: 5),
+                  if (widget
+                      .isCurrentUser) //  show ticks for current user's messages
+
+                    Icon(
+                      widget.read
+                          ? Icons.done_all //  green ticks if message is read
+                          : Icons.done_all, // grey ticks if not read
+                      color: widget.read ? Colors.blue : Colors.grey,
+                      size: 18,
+                    ),
+                ],
               )
             : const CircularProgressIndicator(),
       ),

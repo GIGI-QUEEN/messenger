@@ -138,11 +138,9 @@ class _ChatPageState extends State<ChatPage> {
       ),
       body: Column(
         children: [
-          // display all messages
           Expanded(
             child: _buildMessageList(),
           ),
-
           // user input
           _buildUserInput(),
         ],
@@ -152,24 +150,25 @@ class _ChatPageState extends State<ChatPage> {
 
   // build message list
   Widget _buildMessageList() {
-    String senderID = _authService.getCurrentUser()!.uid;
     return StreamBuilder(
-      stream: _chatService.getMessages(widget.receiverID, senderID),
+      stream: _chatService.getMessages(widget.receiverID, currentUser.uid),
       builder: (context, snapshot) {
-        // errors
         if (snapshot.hasError) {
           return const Text('Error');
         }
-        // loading
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Text('Loading...');
         }
-
-        // return list view
         return ListView(
           controller: _scrollController,
-          children:
-              snapshot.data!.docs.map((doc) => _buildMessageItem(doc)).toList(),
+          children: snapshot.data!.docs.map((doc) {
+            Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+            bool isCurrentUser = data['senderID'] == currentUser.uid;
+            if (!isCurrentUser && !data['read']) {
+              _chatService.markMessageAsRead(data['chatroomID'], doc.id);
+            }
+            return _buildMessageItem(doc);
+          }).toList(),
         );
       },
     );
@@ -195,16 +194,17 @@ class _ChatPageState extends State<ChatPage> {
           data['type'] == 'Type.text'
               ? ChatBubble(
                   message: data['message'],
-                  messageID: data['messageID'],
+                  id: data['id'],
                   chatroomID: data['chatroomID'],
                   isCurrentUser: isCurrentUser,
+                  read: data['read'],
                   onDelete: () => deleteMessage(
                     data['chatroomID'],
-                    data['messageID'],
+                    data['id'],
                   ),
                   onChange: (newMessage) => changeMessage(
                     data['chatroomID'],
-                    data['messageID'],
+                    data['id'],
                     newMessage,
                   ),
                 )
@@ -212,21 +212,23 @@ class _ChatPageState extends State<ChatPage> {
                   ? ImageBubble(
                       message: data['message'],
                       isCurrentUser: isCurrentUser,
-                      messageID: data['messageID'],
+                      id: data['id'],
                       chatroomID: data['chatroomID'],
+                      read: data['read'],
                       onDelete: () => deleteMessage(
                         data['chatroomID'],
-                        data['messageID'],
+                        data['id'],
                       ),
                     )
                   : VideoBubble(
                       message: data['message'],
                       isCurrentUser: isCurrentUser,
-                      messageID: data['messageID'],
+                      id: data['id'],
                       chatroomID: data['chatroomID'],
+                      read: data['read'],
                       onDelete: () => deleteMessage(
                         data['chatroomID'],
-                        data['messageID'],
+                        data['id'],
                       ),
                     ),
         ],
@@ -239,7 +241,7 @@ class _ChatPageState extends State<ChatPage> {
     return Container(
       color: const Color.fromARGB(10, 110, 46, 26),
       child: Padding(
-        padding: const EdgeInsets.only(bottom: 20.0, top: 20.0), 
+        padding: const EdgeInsets.only(bottom: 20.0, top: 20.0),
         child: Row(
           children: [
             // picture icon
@@ -252,7 +254,7 @@ class _ChatPageState extends State<ChatPage> {
               color: Colors.green,
               iconSize: 30,
             ),
-      
+
             // video icon
             IconButton(
               onPressed: () {
@@ -263,7 +265,7 @@ class _ChatPageState extends State<ChatPage> {
               color: Colors.green,
               iconSize: 30,
             ),
-      
+
             // textfield
             Expanded(
               child: Container(
@@ -276,7 +278,7 @@ class _ChatPageState extends State<ChatPage> {
                 ),
               ),
             ),
-      
+
             // send button
             Container(
               decoration: const BoxDecoration(

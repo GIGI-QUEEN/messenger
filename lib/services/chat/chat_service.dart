@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:uuid/uuid.dart';
 import 'dart:developer';
 import 'dart:io';
@@ -13,7 +15,7 @@ class ChatService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  // get user stream
+  // get users stream
   Stream<List<Map<String, dynamic>>> getUsersStream() {
     return _firestore.collection('users').snapshots().map((snapshot) {
       return snapshot.docs.map((doc) {
@@ -26,7 +28,7 @@ class ChatService {
     });
   }
 
-  // get contact stream
+  // get contacts stream
   Stream<List<Map<String, dynamic>>> getContactsStream(String currentUserID) {
     return _firestore
         .collection('users')
@@ -35,24 +37,53 @@ class ChatService {
         .snapshots()
         .asyncMap((snapshot) async {
       final contacts = await Future.wait(snapshot.docs.map((doc) async {
-        // retrieve contact information from the 'users' collection
-        final contactUserID = doc.id;
-        final contactData =
-            await _firestore.collection('users').doc(contactUserID).get();
-
-        // combine contact information from the 'contacts' and 'users' collections
+        // go through each individual contact
         final contact = {
           ...doc.data(),
-          'profile_image': contactData['profile_image'],
         };
-
-        log('Contact profile_image URL: ${contact['profile_image']}');
-        log('currentUserID: $currentUserID');
-
         return contact;
       }).toList());
 
       return contacts;
+    });
+  }
+
+  // get chats stream
+  Stream<List<Map<dynamic, dynamic>>> getChatRoomsStream(String currentUserID) {
+    return _firestore
+        .collection('chat_rooms')
+        .snapshots()
+        .asyncMap((snapshot) async {
+      final users = await Future.wait(snapshot.docs.map((doc) async {
+        // go through each individual chat
+        final chatID = doc.id;
+        log("chat id: $chatID");
+
+        // split the chatID to get the other participant's uid
+        final List<String> participants = chatID.split('_');
+        String otherParticipant =
+            participants.firstWhere((id) => id != _auth.currentUser!.uid);
+
+        log("chat id: $chatID");
+
+        if (participants.contains(_auth.currentUser!.uid)) {
+          log('Found! ${_auth.currentUser!.uid}');
+          log('Other participant: $otherParticipant');
+
+          // fetch user information from the 'users' collection
+          final otherParticipantDoc =
+              await _firestore.collection('users').doc(otherParticipant).get();
+          final otherParticipantData = otherParticipantDoc.data();
+          log('Other participant data: $otherParticipantData');
+          // return user information
+          return otherParticipantData as Map<dynamic, dynamic>;
+        }
+      }).toList());
+
+      final validUsers = users.where((user) => user != null).toList();
+      final resolvedUsers =
+          validUsers.map((user) => user).whereType<Map>().toList();
+      return resolvedUsers;
     });
   }
 
@@ -301,6 +332,17 @@ class ChatService {
     );
     // update the messageID field with the actual document ID
     await messageReference.update({'messageID': messageReference.id});
+
+    // check if the document exists
+    final documentSnapshot =
+        await _firestore.collection('chat_rooms').doc(chatroomID).get();
+
+// if the document doesn't exist, set the ID
+    if (!documentSnapshot.exists) {
+      await _firestore.collection('chat_rooms').doc(chatroomID).set({
+        'id': chatroomID,
+      }, SetOptions(merge: true));
+    }
   }
 
   Future<void> changeMessage(String chatroomID, messageID, newMessage) async {

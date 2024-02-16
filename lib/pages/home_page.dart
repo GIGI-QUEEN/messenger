@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:secure_messenger/components/last_message.dart';
 import 'package:secure_messenger/services/auth/auth_service.dart';
@@ -53,42 +54,58 @@ class _HomePageState extends State<HomePage> {
         onProfileTap: goToProfilePage,
         onSignOut: logout,
       ),
-      body: Column(children: [
-        const SizedBox(height: 20),
-
-        // user's contact list
-        const Text(
-          'CONTACTS',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
+      body: Column(
+        children: [
+          /* const SizedBox(height: 20),
+          const Text(
+            'CONTACTS',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
           ),
-        ),
-        const SizedBox(height: 30),
-        Expanded(
-          child: _buildContactList(),
-        ),
-
-        const Padding(
-          padding: EdgeInsets.only(
-            bottom: 30.0,
-            left: 30,
-            right: 30,
+          const SizedBox(height: 30),
+          Expanded(
+            child: _buildContactList(),
           ),
-          child: Divider(),
-        ),
-
-        // all users
-        const Text(
-          'ALL USERS',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
+          const Padding(
+            padding: EdgeInsets.only(
+              bottom: 30.0,
+              left: 30,
+              right: 30,
+            ),
+            child: Divider(),
+          ), */
+          const SizedBox(height: 20),
+          const Text(
+            'CHATS',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
           ),
-        ),
-        const SizedBox(height: 30),
-        Expanded(
-          child: _buildUserList(),
-        ),
-      ]),
+          const SizedBox(height: 30),
+          Expanded(
+            child: _buildChatList(),
+          ),
+          const Padding(
+            padding: EdgeInsets.only(
+              bottom: 30.0,
+              left: 30,
+              right: 30,
+            ),
+            child: Divider(),
+          ),
+          const Text(
+            'ALL USERS',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 30),
+          Expanded(
+            child: _buildUserList(),
+          ),
+        ],
+      ),
     );
   }
 
@@ -97,7 +114,7 @@ class _HomePageState extends State<HomePage> {
     return StreamBuilder(
       stream: _chatService.getUsersStream(),
       builder: (context, snapshot) {
-        log('Snapshot Data in getUsersStream: ${snapshot.data}');
+        // log('Snapshot Data in getUsersStream: ${snapshot.data}');
 
         // error
         if (snapshot.hasError) {
@@ -125,7 +142,7 @@ class _HomePageState extends State<HomePage> {
       stream:
           _chatService.getContactsStream(_authService.getCurrentUser()!.uid),
       builder: (context, snapshot) {
-        log('Snapshot Data in getContactsStream: ${snapshot.data}');
+        // log('Snapshot Data in getContactsStream: ${snapshot.data}');
 
         // error
         if (snapshot.hasError) {
@@ -148,13 +165,46 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  // build a list of contacts except for the current logged in user
+  Widget _buildChatList() {
+    log('in _buildChatsList');
+    return StreamBuilder(
+      stream:
+          _chatService.getChatRoomsStream(_authService.getCurrentUser()!.uid),
+      builder: (context, snapshot) {
+        log('Snapshot Data in getChatRoomsStream: ${snapshot.data}');
+
+        // error
+        if (snapshot.hasError) {
+          log('{$snapshot.error}');
+          return const Text('Error');
+        }
+
+        // loading
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Text('Loading...');
+        }
+
+        // return list view
+        return snapshot.data == null || snapshot.data!.isEmpty
+            ? const Text('No chat rooms found yet.\n\n You can change that :)')
+            : ListView(
+                children: snapshot.data!
+                    .map<Widget>(
+                        (userData) => _buildChatListItem(userData, context))
+                    .toList(),
+              );
+      },
+    );
+  }
+
   // build individual list tile for user
   Widget _buildUserListItem(
       Map<String, dynamic>? userData, BuildContext context) {
     // display all user except current user
     if (userData != null &&
         userData['uid'] != _authService.getCurrentUser()!.uid) {
-      log('userData: $userData');
+      // log('userData: $userData');
       return UserTile(
         text: userData['email'],
         imageURL: userData['profile_image'] ?? '',
@@ -178,6 +228,34 @@ class _HomePageState extends State<HomePage> {
   Widget _buildContactListItem(
       Map<String, dynamic> userData, BuildContext context) {
     String chatRoomID = _chatService.constructChatRoomID(
+        userData['uid'], _authService.getCurrentUser()!.uid);
+    return Column(
+      children: [
+        UserTile(
+          text: userData['email'],
+          imageURL: userData['profile_image'] ?? '',
+          subtitle: LastMessageDisplay(
+            chatroomId: chatRoomID,
+            chatService: _chatService,
+          ),
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ChatPage(
+                receiverEmail: userData['email'],
+                receiverID: userData['uid'],
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
+      ],
+    );
+  }
+
+  Widget _buildChatListItem(
+      Map<dynamic, dynamic> userData, BuildContext context) {
+    String chatRoomID =_chatService.constructChatRoomID(
         userData['uid'], _authService.getCurrentUser()!.uid);
     return Column(
       children: [

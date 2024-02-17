@@ -172,7 +172,7 @@ class _HomePageState extends State<HomePage> {
       stream:
           _chatService.getChatRoomsStream(_authService.getCurrentUser()!.uid),
       builder: (context, snapshot) {
-        log('Snapshot Data in getChatRoomsStream: ${snapshot.data}');
+        //log('Snapshot Data in getChatRoomsStream: ${snapshot.data}');
 
         // error
         if (snapshot.hasError) {

@@ -57,24 +57,18 @@ class ChatService {
       final users = await Future.wait(snapshot.docs.map((doc) async {
         // go through each individual chat
         final chatID = doc.id;
-        log("chat id: $chatID");
 
         // split the chatID to get the other participant's uid
         final List<String> participants = chatID.split('_');
         String otherParticipant =
             participants.firstWhere((id) => id != _auth.currentUser!.uid);
 
-        log("chat id: $chatID");
 
         if (participants.contains(_auth.currentUser!.uid)) {
-          log('Found! ${_auth.currentUser!.uid}');
-          log('Other participant: $otherParticipant');
-
           // fetch user information from the 'users' collection
           final otherParticipantDoc =
               await _firestore.collection('users').doc(otherParticipant).get();
           final otherParticipantData = otherParticipantDoc.data();
-          log('Other participant data: $otherParticipantData');
           // return user information
           return otherParticipantData as Map<dynamic, dynamic>;
         }
@@ -345,6 +339,7 @@ class ChatService {
     }
   }
 
+  // change a message
   Future<void> changeMessage(String chatroomID, messageID, newMessage) async {
     try {
       await FirebaseFirestore.instance
@@ -358,6 +353,7 @@ class ChatService {
     }
   }
 
+  // delete message
   Future<void> deleteMessage(String chatroomID, messageID) async {
     try {
       await FirebaseFirestore.instance
@@ -428,10 +424,51 @@ class ChatService {
     await messageRef.update({'read': true});
   }
 
-// check if a message is read
+  // check if a message is read
   bool isMessageRead(DocumentSnapshot message) {
     // get the read field value from the message document
     bool read = (message.data() as Map<String, dynamic>?)?['read'] ?? false;
     return read;
+  }
+
+  void updateTypingStatus(
+    String currentUserID,
+    String otherUserID,
+    bool isTyping,
+  ) async {
+    log("in updateTypingStatus: $isTyping");
+    String chatroomID = constructChatRoomID(currentUserID, otherUserID);
+
+    // reference to chat room document
+    final chatRoomRef =
+        FirebaseFirestore.instance.collection('chat_rooms').doc(chatroomID);
+
+    // check if the 'typingStatus' subcollection exists
+    final typingStatusRef =
+        chatRoomRef.collection('typingStatus').doc(currentUserID);
+    final typingStatusSnapshot = await typingStatusRef.get();
+
+    // if not, create it, otherwise update
+    if (!typingStatusSnapshot.exists) {
+      await typingStatusRef.set({'isTyping': isTyping});
+    } else {
+      await typingStatusRef.update({'isTyping': isTyping});
+    }
+  }
+
+  Stream<bool> getChatMateTypingStatusStream(
+    String currentUserID,
+    String otherUserID,
+  ) {
+    log('in getChatMateTypingStatusStream');
+    String chatroomID = constructChatRoomID(currentUserID, otherUserID);
+
+    return _firestore
+        .collection('chat_rooms')
+        .doc(chatroomID)
+        .collection('typingStatus')
+        .doc(otherUserID)
+        .snapshots()
+        .map((snapshot) => snapshot.data()?['isTyping'] ?? false);
   }
 }

@@ -26,6 +26,8 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage> {
+  bool _isTyping = false;
+
   // text controller
   final TextEditingController _messageController = TextEditingController();
 
@@ -45,6 +47,8 @@ class _ChatPageState extends State<ChatPage> {
   @override
   void initState() {
     super.initState();
+
+    _messageController.addListener(_handleTyping);
 
     myFocusNode.addListener(() {
       if (myFocusNode.hasFocus) {
@@ -79,6 +83,16 @@ class _ChatPageState extends State<ChatPage> {
       duration: const Duration(seconds: 1),
       curve: Curves.fastOutSlowIn,
     );
+  }
+
+  void _handleTyping() {
+    bool newIsTyping = _messageController.text.isNotEmpty;
+    if (_isTyping != newIsTyping) {
+      _isTyping = newIsTyping;
+      log('typing: $_isTyping');
+      _chatService.updateTypingStatus(
+          currentUser.uid, widget.receiverID, _isTyping);
+    }
   }
 
   // send message
@@ -141,9 +155,47 @@ class _ChatPageState extends State<ChatPage> {
           Expanded(
             child: _buildMessageList(),
           ),
+          // typing indicator
+          _buildTypingIndicator(),
           // user input
           _buildUserInput(),
         ],
+      ),
+    );
+  }
+
+// build typing indicator
+  Widget _buildTypingIndicator() {
+    return StreamBuilder<bool>(
+      stream: _chatService.getChatMateTypingStatusStream(
+          currentUser.uid, widget.receiverID),
+      builder: (context, snapshot) {
+        log('Snapshot Data in getChatMateTypingStatus: ${snapshot.data}');
+
+        if (snapshot.hasError) {
+          return const Text('Error');
+        }
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Text('Loading...');
+        }
+
+        // check if the other user is typing
+        final isTyping = snapshot.data!;
+
+        // return typing indicator widget
+        return isTyping ? _buildTypingIndicatorItem(context) : const SizedBox();
+      },
+    );
+  }
+
+  // build typing indicator item
+  Widget _buildTypingIndicatorItem(BuildContext context) {
+    return const Align(
+      alignment: Alignment.bottomLeft,
+      child: Padding(
+        padding: EdgeInsets.only(left: 8.0, bottom: 8.0),
+        child: Text('Typing...'),
       ),
     );
   }
@@ -159,16 +211,32 @@ class _ChatPageState extends State<ChatPage> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Text('Loading...');
         }
-        return ListView(
+
+        // get the list of messages
+        final messages = snapshot.data!.docs;
+
+        // scroll down to the latest message
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _scrollController.animateTo(
+            _scrollController.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.easeInOut,
+          );
+        });
+
+        return ListView.builder(
           controller: _scrollController,
-          children: snapshot.data!.docs.map((doc) {
+          itemCount: messages.length,
+          itemBuilder: (context, index) {
+            // Build each message item
+            final doc = messages[index];
             Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
             bool isCurrentUser = data['senderID'] == currentUser.uid;
             if (!isCurrentUser && !data['read']) {
               _chatService.markMessageAsRead(data['chatroomID'], doc.id);
             }
             return _buildMessageItem(doc);
-          }).toList(),
+          },
         );
       },
     );

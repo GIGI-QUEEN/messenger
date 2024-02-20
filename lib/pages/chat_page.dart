@@ -89,7 +89,7 @@ class _ChatPageState extends State<ChatPage> {
     bool newIsTyping = _messageController.text.isNotEmpty;
     if (_isTyping != newIsTyping) {
       _isTyping = newIsTyping;
-      log('typing: $_isTyping');
+      //log('typing: $_isTyping');
       _chatService.updateTypingStatus(
           currentUser.uid, widget.receiverID, _isTyping);
     }

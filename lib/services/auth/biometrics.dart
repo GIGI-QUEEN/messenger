@@ -3,7 +3,7 @@ import 'dart:developer';
 import 'package:flutter/services.dart';
 import 'package:local_auth/local_auth.dart';
 
-class AuthService {
+class BiometricsService {
   static Future<bool> authenticateUser() async {
     // ignore: no_leading_underscores_for_local_identifiers
     final LocalAuthentication _localAuthentication = LocalAuthentication();

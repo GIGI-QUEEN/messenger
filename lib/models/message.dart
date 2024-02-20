@@ -39,4 +39,16 @@ class Message {
       'read': read,
     };
   }
+
+  factory Message.fromFirebaseData(Map<String, dynamic> firebaseData) {
+    return Message(
+      senderID: firebaseData["senderID"],
+      senderEmail: firebaseData["senderEmail"],
+      receiverID: firebaseData["receiverID"],
+      message: firebaseData["message"],
+      chatroomID: firebaseData["chatroomID"],
+      timestamp: firebaseData["timestamp"],
+      type: firebaseData["type"],
+    );
+  }
 }

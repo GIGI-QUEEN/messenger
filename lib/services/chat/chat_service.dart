@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:convert';
 
+import 'package:secure_messenger/models/chatroom.dart';
 import 'package:uuid/uuid.dart';
 import 'dart:developer';
 import 'dart:io';
@@ -48,6 +50,92 @@ class ChatService {
     });
   }
 
+  // get actually chats :)
+  //
+  Stream<List<Map<dynamic, dynamic>>> getChatRoomsStreamV2(
+      String currentUserID) {
+    return _firestore
+        .collection('chat_rooms')
+        .snapshots()
+        .asyncMap((snapshot) async {
+      final users = await Future.wait(snapshot.docs.map((doc) async {
+        // go through each individual chat
+        final chatID = doc.id;
+        // 1: chat id
+
+        // split the chatID to get the other participant's uid
+        final List<String> participants = chatID.split('_');
+        String otherParticipant =
+            participants.firstWhere((id) => id != _auth.currentUser!.uid);
+        // 2: otherUserId
+
+        if (participants.contains(_auth.currentUser!.uid)) {
+          // fetch user information from the 'users' collection
+          final otherParticipantDoc =
+              await _firestore.collection('users').doc(otherParticipant).get();
+          final otherParticipantData = otherParticipantDoc.data();
+          // return user information
+          return otherParticipantData as Map<dynamic, dynamic>;
+        }
+      }).toList());
+
+      /* final List<Message> messages; */
+
+      final validUsers = users.where((user) => user != null).toList();
+      final resolvedUsers =
+          validUsers.map((user) => user).whereType<Map>().toList();
+      return resolvedUsers;
+    });
+  }
+
+  /*  Future<void> getChatRoomsV4(String currentUserId) {
+    _firestore.collection('chat_rooms').snapshots().listen((snapshot) { 
+      for (final doc in snapshot.docs){
+      //  log('')
+      }
+    });
+  } */
+
+  Stream<List<Map<String, dynamic>>> getChatRoomsV3(String currentUserId) {
+    // _firestore.collection('chat_rooms').snapshots().listen((snapshot) {
+    /*    for (var doc in snapshot.docs) {
+        Map<String, dynamic> data = doc.data();
+        final messages = data['messages']; */
+
+    return _firestore.collection('chat_rooms').snapshots().asyncMap((chatRoomsSnapshot) {
+    List<Map<String, dynamic>> chatRooms = [];
+
+      for (var chatRoomDoc in chatRoomsSnapshot.docs) {
+        final String chatRoomId = chatRoomDoc.id;
+        log('chatroomId: $chatRoomId');
+        Map<String, dynamic> chatRoom = {};
+        if (chatRoomId.contains(currentUserId)) {
+          chatRoom['id'] = chatRoomId;
+
+          //log('currentuserID: $currentUserId');
+          _firestore
+              .collection('chat_rooms')
+              .doc(chatRoomDoc.id)
+              .collection('messages')
+              .snapshots()
+              .listen((messagesSnapshot) {
+            for (var messageDoc in messagesSnapshot.docs) {
+              var messageData = messageDoc.data();
+              //  log('message data: ${messageData.toString()}');
+              // final Message message = Message.fromFirebaseData(messageData);
+            }
+          });
+          chatRooms.add(chatRoom);
+          // chatroom id
+          // otherUser userId
+          // last message
+          
+        }
+      }
+      return chatRooms;
+    });
+  }
+
   // get chats stream
   Stream<List<Map<dynamic, dynamic>>> getChatRoomsStream(String currentUserID) {
     return _firestore
@@ -62,7 +150,6 @@ class ChatService {
         final List<String> participants = chatID.split('_');
         String otherParticipant =
             participants.firstWhere((id) => id != _auth.currentUser!.uid);
-
 
         if (participants.contains(_auth.currentUser!.uid)) {
           // fetch user information from the 'users' collection
@@ -117,8 +204,8 @@ class ChatService {
     String chatroomID = constructChatRoomID(currentUserID, receiverID);
     String fileName = const Uuid().v1();
     var ref = type == Type.image
-        ? FirebaseStorage.instance.ref().child('images').child('$fileName')
-        : FirebaseStorage.instance.ref().child('videos').child('$fileName');
+        ? FirebaseStorage.instance.ref().child('images').child(fileName)
+        : FirebaseStorage.instance.ref().child('videos').child(fileName);
     var uploadTask = type == Type.image
         ? await ref.putFile(file)
         : await ref.putFile(file, SettableMetadata(contentType: 'video/mp4'));
@@ -293,14 +380,14 @@ class ChatService {
 
   // send message
   Future<void> sendMessage(String receiverID, message) async {
-    log('message is: $message');
+   // log('message is: $message');
     // get current user info
     final String currentUserID = _auth.currentUser!.uid;
     final String currentUserEmail = _auth.currentUser!.email!;
     final Timestamp timestamp = Timestamp.now();
 
     String chatroomID = constructChatRoomID(currentUserID, receiverID);
-    log('chatroomid: $chatroomID');
+   // log('chatroomid: $chatroomID');
 
     // create a new message
     Message newMessage = Message(
@@ -367,6 +454,50 @@ class ChatService {
     }
   }
 
+  // get last message
+  Stream<DocumentSnapshot?> getLastMessageStream(String chatroomId) {
+    return FirebaseFirestore.instance
+        .collection('chat_rooms')
+        .doc(chatroomId)
+        .collection('messages')
+        .orderBy('timestamp', descending: true)
+        .limit(1)
+        .snapshots()
+        .map((snapshot) {
+      if (snapshot.docs.isNotEmpty) {
+        return snapshot.docs.first;
+      } else {
+        return null;
+      }
+    });
+  }
+
+  // get last messages
+  /*  List<Map<String, dynamic>> getLastMessages(String userID, otherUserID) {
+    // construct a chatroom ID for the two users
+    String chatroomID = constructChatRoomID(userID, otherUserID);
+
+    CollectionReference messagesCollection = _firestore
+        .collection('chat_rooms')
+        .doc(chatroomID)
+        .collection('messages');
+
+    // mark messages as read
+    markMessagesAsRead(messagesCollection);
+  } */
+
+  void markMessagesAsRead(CollectionReference<Object?> messagesCollection) {
+    messagesCollection
+        .where('receiverID', isEqualTo: _auth.currentUser!.uid)
+        .where('read', isEqualTo: false)
+        .get()
+        .then((snapshot) {
+      for (DocumentSnapshot doc in snapshot.docs) {
+        doc.reference.update({'read': true});
+      }
+    });
+  }
+
   // get messages
   Stream<QuerySnapshot> getMessages(String userID, otherUserID) {
     // construct a chatroom ID for the two users
@@ -394,7 +525,7 @@ class ChatService {
   }
 
   // get the stream of the last message in the conversation
-  Stream<DocumentSnapshot?> getLastMessageStream(String chatroomId) {
+/*   Stream<DocumentSnapshot?> getLastMessageStream(String chatroomId) {
     return FirebaseFirestore.instance
         .collection('chat_rooms')
         .doc(chatroomId)
@@ -410,7 +541,7 @@ class ChatService {
       }
     });
   }
-
+ */
   // update read status of a message
   void markMessageAsRead(String chatroomId, String messageId) async {
     // get reference to the message document
@@ -472,3 +603,19 @@ class ChatService {
         .map((snapshot) => snapshot.data()?['isTyping'] ?? false);
   }
 }
+
+
+
+/* 
+
+chat_rooms (collection):
+  7WTVUmfnP3QNHOauCuzkYB8eAXF3_WV8QSp9VONW4z4owkiTcycrZeLc2 (document)
+      messages (collection):
+        G6ORMISyhtvgAq8Wpsks(document)
+            contains all needed message data
+      typingStatus (collection)
+        WV8QSp9VONW4z4owkiTcycrZeLc2(document)
+            isTyping: false
+      id: 7WTVUmfnP3QNHOauCuzkYB8eAXF3_WV8QSp9VONW4z4owkiTcycrZeLc2
+
+ */

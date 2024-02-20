@@ -14,7 +14,7 @@ class User {
     required this.username,
     required this.timestamp,
   });
-
+/* 
   // convert to a map
   Map<String, dynamic> toMap() {
     return {
@@ -24,5 +24,5 @@ class User {
       'username': username,
       'timestamp': timestamp,
     };
-  }
+  } */
 }

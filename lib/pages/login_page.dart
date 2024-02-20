@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:local_auth/local_auth.dart';
+import 'package:secure_messenger/services/auth/biometrics.dart';
 
 import '../components/my_button.dart';
 import '../components/my_textfield.dart';
@@ -38,7 +39,7 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> checkBiometricAuth() async {
     if (!_isMounted) return;
-    _isAuthenticated = await AuthService.authenticateUser();
+    _isAuthenticated = await BiometricsService.authenticateUser();
     if (_isMounted) {
       setState(() {});
     }

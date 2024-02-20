@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:secure_messenger/components/last_message.dart';
+import 'package:secure_messenger/pages/chats_page/chats_list.dart';
 import 'package:secure_messenger/services/auth/auth_service.dart';
 import 'package:secure_messenger/services/chat/chat_service.dart';
 
@@ -84,7 +85,7 @@ class _HomePageState extends State<HomePage> {
           ),
           const SizedBox(height: 30),
           Expanded(
-            child: _buildChatList(),
+            child: ChatsList(),
           ),
           const Padding(
             padding: EdgeInsets.only(

@@ -4,7 +4,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_firebase_chat_core/flutter_firebase_chat_core.dart';
 import 'package:local_auth/local_auth.dart';
+import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 
 class AuthService {
   // instance of auth
@@ -60,7 +62,7 @@ class AuthService {
   }
 
   // sign up
-  Future<UserCredential> signUpWithEmailPassword(String email, password) async {
+  Future<void> signUpWithEmailPassword(String email, password, username) async {
     try {
       // create user
       UserCredential userCredential =
@@ -69,7 +71,12 @@ class AuthService {
         password: password,
       );
 
-      // save user info in a separate document
+      await FirebaseChatCore.instance.createUserInFirestore(
+          types.User(id: userCredential.user!.uid, metadata: {
+        "email": userCredential.user!.email,
+        "username": username,
+      }));
+      /*    // save user info in a separate document
       await _firestore.collection('users').doc(userCredential.user!.uid).set(
         {
           'uid': userCredential.user!.uid,
@@ -78,9 +85,9 @@ class AuthService {
           'bio': 'Empty bio',
           'profile_image': '',
         },
-      );
+      ); */
 
-      return userCredential;
+      //return userCredential;
     } on FirebaseAuthException catch (e) {
       throw Exception(e.code);
     }

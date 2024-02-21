@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: const AuthPage(), // const GenerateQRCode()
-      theme: lightMode,
+      theme: darkMode,
     );
   }
 }

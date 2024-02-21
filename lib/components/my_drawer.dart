@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:secure_messenger/components/my_list_tile.dart';
+import 'package:secure_messenger/pages/users_page/users_page.dart';
 
 import '../pages/search_page.dart';
 import '../pages/settings_page.dart';
@@ -59,6 +60,22 @@ class MyDrawer extends StatelessWidget {
                 icon: Icons.person,
                 text: 'P R O F I L E',
                 onTap: onProfileTap,
+              ),
+              MyListTile(
+                icon: Icons.people,
+                text: 'Users',
+                onTap: () {
+                  // pop the drawer
+                  Navigator.pop(context);
+
+                  // navigate to settings page
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const UsersPage(),
+                    ),
+                  );
+                },
               ),
 
               MyListTile(

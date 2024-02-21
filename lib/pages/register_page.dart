@@ -6,6 +6,7 @@ import '../components/my_textfield.dart';
 
 class RegisterPage extends StatelessWidget {
   final _emailController = TextEditingController();
+  final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
@@ -28,6 +29,7 @@ class RegisterPage extends StatelessWidget {
           .signUpWithEmailPassword(
             _emailController.text,
             _passwordController.text,
+            _usernameController.text,
           )
           .then((_) {})
           .catchError((e) {
@@ -87,6 +89,13 @@ class RegisterPage extends StatelessWidget {
                     MyTextField(
                       controller: _emailController,
                       hintText: 'Email',
+                      obscureText: false,
+                    ),
+
+                    const SizedBox(height: 10),
+                    MyTextField(
+                      controller: _usernameController,
+                      hintText: 'Username',
                       obscureText: false,
                     ),
 

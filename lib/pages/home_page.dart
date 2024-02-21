@@ -1,7 +1,10 @@
+// ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
+
 import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:secure_messenger/components/last_message.dart';
+import 'package:secure_messenger/pages/rooms_page/rooms_page.dart';
 import 'package:secure_messenger/services/auth/auth_service.dart';
 import 'package:secure_messenger/services/chat/chat_service.dart';
 
@@ -75,17 +78,18 @@ class _HomePageState extends State<HomePage> {
             ),
             child: Divider(),
           ), */
-          const SizedBox(height: 20),
-          const Text(
+          // const SizedBox(height: 20),
+          /*   const Text(
             'CHATS',
             style: TextStyle(
               fontWeight: FontWeight.bold,
             ),
-          ),
+          ), */
           const SizedBox(height: 30),
-          Expanded(
+          const Expanded(child: RoomsPage()),
+          /* Expanded(
             child: _buildChatList(),
-          ),
+          ), */
           const Padding(
             padding: EdgeInsets.only(
               bottom: 30.0,
@@ -94,16 +98,16 @@ class _HomePageState extends State<HomePage> {
             ),
             child: Divider(),
           ),
-          const Text(
+          /*  const Text(
             'ALL USERS',
             style: TextStyle(
               fontWeight: FontWeight.bold,
             ),
-          ),
+          ), */
           const SizedBox(height: 30),
-          Expanded(
+          /*  Expanded(
             child: _buildUserList(),
-          ),
+          ), */
         ],
       ),
     );
@@ -255,7 +259,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildChatListItem(
       Map<dynamic, dynamic> userData, BuildContext context) {
-    String chatRoomID =_chatService.constructChatRoomID(
+    String chatRoomID = _chatService.constructChatRoomID(
         userData['uid'], _authService.getCurrentUser()!.uid);
     return Column(
       children: [

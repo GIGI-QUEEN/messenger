@@ -15,6 +15,8 @@ class UserInput extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
+          PickImageButton(),
+          PickVideoButton(),
           InputBar(
               //textEditingController: _textEditingController,
               ),
@@ -42,27 +44,85 @@ class InputBar extends StatelessWidget {
               cursorColor: Colors.white,
               style: const TextStyle(color: Colors.white),
               decoration: InputDecoration(
-                  contentPadding: const EdgeInsets.only(bottom: 3),
-                  fillColor: green,
-                  filled: true,
-                  hintText: 'type message...',
-                  hintStyle: const TextStyle(
-                      color: Color.fromARGB(193, 255, 255, 255)),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),
-                    borderSide: BorderSide.none,
-                  ),
-                  prefixIcon: IconButton(
-                    onPressed: () {},
-                    icon: const Icon(
-                      Icons.attach_file,
-                      color: Colors.white,
-                    ),
-                  )),
+                contentPadding: const EdgeInsets.only(bottom: 3, left: 20),
+                fillColor: green,
+                filled: true,
+                hintText: 'type message...',
+                hintStyle:
+                    const TextStyle(color: Color.fromARGB(193, 255, 255, 255)),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  borderSide: BorderSide.none,
+                ),
+                //suffixIcon: Container(width: 100, child: PickFile())
+                // prefixIcon: PickFile(),
+              ),
             );
           },
         ),
       ),
+    );
+  }
+}
+
+class PickFile extends StatelessWidget {
+  const PickFile({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        PickImageButton(),
+        PickVideoButton(),
+      ],
+    );
+  }
+}
+
+class PickImageButton extends StatelessWidget {
+  const PickImageButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<ChatProvider>(
+      builder: (context, model, child) {
+        return IconButton(
+          onPressed: () {
+            model.pickImage();
+          },
+          icon: const Icon(
+            Icons.image,
+            color: Colors.white,
+          ),
+          style: IconButton.styleFrom(backgroundColor: green),
+          color: Colors.white,
+        );
+      },
+    );
+  }
+}
+
+class PickVideoButton extends StatelessWidget {
+  const PickVideoButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<ChatProvider>(
+      builder: (context, model, child) {
+        return IconButton(
+          onPressed: () {
+            model.pickVideo();
+          },
+          splashRadius: 10,
+          icon: const Icon(
+            Icons.video_file,
+            color: Colors.white,
+          ),
+          style: IconButton.styleFrom(backgroundColor: green),
+          color: Colors.white,
+        );
+      },
     );
   }
 }
@@ -108,13 +168,36 @@ class SendButton extends StatelessWidget {
       builder: (context, model, child) {
         return IconButton(
           onPressed: () {
-            final text = PartialText(
-                text: model.textEditingController.text,
-                metadata: const {
-                  'isSeen': false,
-                });
-            _firebaseChatCore.sendMessage(text, model.roomId);
-            model.textEditingController.clear();
+            /*  if (model.image != null) {
+              model.sendImageMessage();
+            } */
+            if (model.video != null) {
+              model.sendVideoMessage();
+            }
+            /*   if (model.image != null) {
+              model.sendImageMessage();
+            } else if (model.video != null) {
+              model.sendVideoMessage();
+            } else {
+              final text = PartialText(
+                  text: model.textEditingController.text,
+                  metadata: const {
+                    'isSeen': false,
+                  });
+              _firebaseChatCore.sendMessage(text, model.roomId);
+              model.textEditingController.clear();
+            } */
+            /*   if (model.partialImage != null) {
+              _firebaseChatCore.sendMessage(model.partialImage, model.roomId);
+            } else {
+              final text = PartialText(
+                  text: model.textEditingController.text,
+                  metadata: const {
+                    'isSeen': false,
+                  });
+              _firebaseChatCore.sendMessage(text, model.roomId);
+              model.textEditingController.clear();
+            } */
           },
           icon: const Icon(Icons.arrow_forward),
           style: IconButton.styleFrom(backgroundColor: green),
@@ -132,3 +215,16 @@ class SendButton extends StatelessWidget {
 }
 
 const green = Color.fromRGBO(38, 192, 166, 1);
+
+/* class SelectImageOrVideo extends StatelessWidget {
+  const SelectImageOrVideo({super.key});
+  final List<bool> _selectedChoice = <bool>[false, false];
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      child: ToggleButtons(children: [], isSelected: isSelected),
+    );
+  }
+}
+ */

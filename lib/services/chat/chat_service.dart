@@ -63,7 +63,6 @@ class ChatService {
         String otherParticipant =
             participants.firstWhere((id) => id != _auth.currentUser!.uid);
 
-
         if (participants.contains(_auth.currentUser!.uid)) {
           // fetch user information from the 'users' collection
           final otherParticipantDoc =
@@ -107,6 +106,8 @@ class ChatService {
       }
     });
   }
+
+  //void uploadMedia() {}
 
   Future<void> uploadImageOrVideo(
       String receiverID, File file, Type type) async {

@@ -31,6 +31,8 @@ class DatabaseService {
     });
   }
 
+  void updateMessageToVideo(String roomId) {}
+
 /*   Future<types.User> getUserById(String id) async {
     // types.User user = types.User(id: id);
     return await _firestore.collection('users').doc(id).get().then((snapshot) {

@@ -9,9 +9,14 @@ import 'package:secure_messenger/pages/chat_page/user_input.dart';
 import 'package:secure_messenger/themes/light_mode.dart';
 
 class MessagesList extends StatelessWidget {
-  MessagesList({super.key, required this.messages});
+  MessagesList({
+    super.key,
+    required this.messages,
+    required this.roomid,
+  });
   final List<Message> messages;
   final FirebaseChatCore _chatCore = FirebaseChatCore.instance;
+  final String roomid;
   @override
   Widget build(BuildContext context) {
     final user = _chatCore.firebaseUser;
@@ -36,11 +41,8 @@ class MessagesList extends StatelessWidget {
             isCurrentUser: isCurrentUser,
             bgColor: bgColor,
             borderRadius: borderRadius,
+            roomId: roomid,
           );
-          /* return TextMessageTile(
-            message: message,
-            alignment: alignment,
-          ); */
         },
       ),
     );

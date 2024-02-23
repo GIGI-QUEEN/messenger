@@ -35,7 +35,12 @@ class ChatPage extends StatelessWidget {
                       topLeft: Radius.circular(40),
                       topRight: Radius.circular(40))),
               child: Column(children: [
-                Expanded(child: MessagesList(messages: model.messages)),
+                Expanded(
+                  child: MessagesList(
+                    messages: model.messages,
+                    roomid: model.roomId,
+                  ),
+                ),
                 UserInput(),
               ]),
             ),

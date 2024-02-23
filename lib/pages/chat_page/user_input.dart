@@ -40,6 +40,7 @@ class InputBar extends StatelessWidget {
         child: Consumer<ChatProvider>(
           builder: (context, model, child) {
             return TextField(
+              keyboardType: TextInputType.multiline,
               controller: model.textEditingController,
               cursorColor: Colors.white,
               style: const TextStyle(color: Colors.white),

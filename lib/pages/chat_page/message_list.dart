@@ -3,7 +3,10 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart';
 import 'package:flutter_firebase_chat_core/flutter_firebase_chat_core.dart';
+import 'package:secure_messenger/pages/chat_page/message_tile/border_radius.dart';
 import 'package:secure_messenger/pages/chat_page/message_tile/message_tile.dart';
+import 'package:secure_messenger/pages/chat_page/user_input.dart';
+import 'package:secure_messenger/themes/light_mode.dart';
 
 class MessagesList extends StatelessWidget {
   MessagesList({super.key, required this.messages});
@@ -11,6 +14,7 @@ class MessagesList extends StatelessWidget {
   final FirebaseChatCore _chatCore = FirebaseChatCore.instance;
   @override
   Widget build(BuildContext context) {
+    final user = _chatCore.firebaseUser;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 30),
       child: ListView.builder(
@@ -18,13 +22,21 @@ class MessagesList extends StatelessWidget {
         itemCount: messages.length,
         itemBuilder: (context, index) {
           final message = messages.elementAt(index);
+          final isCurrentUser = user!.uid == message.author.id;
           final Alignment alignment =
-              _chatCore.firebaseUser!.uid == message.author.id
-                  ? Alignment.centerRight
-                  : Alignment.centerLeft;
-          // log('status: ${message.status}');
-          //log('type: ${message.type}');
-          return MessageTile(message: message, alignment: alignment);
+              isCurrentUser ? Alignment.centerRight : Alignment.centerLeft;
+          final Color bgColor = isCurrentUser ? green : mainBlack;
+          final BorderRadius borderRadius = isCurrentUser
+              ? currentUserBorderRadius
+              : otherUserBorderUserRadius;
+
+          return MessageTile(
+            message: message,
+            alignment: alignment,
+            isCurrentUser: isCurrentUser,
+            bgColor: bgColor,
+            borderRadius: borderRadius,
+          );
           /* return TextMessageTile(
             message: message,
             alignment: alignment,

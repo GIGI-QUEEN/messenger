@@ -32,13 +32,13 @@ class _VideoMessageTileState extends State<VideoMessageTile> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      alignment: Alignment.centerLeft,
-      margin: const EdgeInsets.only(bottom: 15),
-      //height: 150,
-      width: 200,
+    return SizedBox(
+      width: 250,
       height: 150,
-      child: Chewie(controller: _chewieController),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: Chewie(controller: _chewieController),
+      ),
     );
   }
 }

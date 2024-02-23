@@ -1,14 +1,13 @@
 import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
-
+import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
-
 import 'package:flutter_chat_types/flutter_chat_types.dart';
 import 'package:flutter_firebase_chat_core/flutter_firebase_chat_core.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:secure_messenger/services/database/database_service.dart';
 import 'package:secure_messenger/services/media/media_service.dart';
+import 'package:video_player/video_player.dart';
 
 class ChatProvider extends ChangeNotifier {
   final String roomId;
@@ -16,8 +15,6 @@ class ChatProvider extends ChangeNotifier {
   Room? get room => _room;
   List<Message> _messages = [];
   List<Message> get messages => _messages;
-  String _roomTitle = '';
-  String get roomTitle => _roomTitle;
   final TextEditingController textEditingController = TextEditingController();
 
   //IMAGE MESSAGE
@@ -34,20 +31,43 @@ class ChatProvider extends ChangeNotifier {
   final MediaService _mediaService = MediaService();
 
   //STREAMS
-  late StreamSubscription _roomSubscription;
-  late StreamSubscription _messagesSubscription;
+  StreamSubscription? _roomSubscription;
+  StreamSubscription? _messagesSubscription;
+
+  //PLAYING VIDEO
+  /*  late VideoPlayerController _videoPlayerController;
+  late ChewieController _chewieController;
+ */
 
   void getRoom() {
     _roomSubscription = _firebaseChatCore.room(roomId).listen((roomStream) {
       _room = roomStream;
+      _messagesSubscription?.cancel();
       _messagesSubscription =
           _firebaseChatCore.messages(room!).listen((messagesStream) {
         _messages = messagesStream;
+        //reading freshly received message if user currently at room page
+        if (_messages.elementAt(0).author.id !=
+            _firebaseChatCore.firebaseUser!.uid) {
+          _databaseService.updateMessageStatus(
+              roomId, _messages.elementAt(0).id);
+        }
         notifyListeners();
       });
-      notifyListeners(); //not sure if it's needed
+
+      // notifyListeners(); //not sure if it's needed
     });
+    //  notifyListeners(); //not sure if it's needed
   }
+
+/*   void getMessages() {
+    if (room != null) {
+      _messagesSubscription =
+          _firebaseChatCore.messages(room!).listen((messagesStream) {
+        _messages = messagesStream;
+      });
+    }
+  } */
 
   User? companion() {
     final currentUserId = _firebaseChatCore.firebaseUser!.uid;
@@ -57,8 +77,12 @@ class ChatProvider extends ChangeNotifier {
     return null;
   }
 
-  void sendMessage(dynamic message) {
-    _firebaseChatCore.sendMessage(message, roomId);
+  void sendTextMessage() {
+    final text = PartialText(
+        text: textEditingController.text, metadata: {'isSeen': false});
+    _firebaseChatCore.sendMessage(text, roomId);
+    textEditingController.clear();
+    _databaseService.updateLastMessage(roomId, text.text);
     // _firebaseChatCore.updateRoom(_room!);
   }
 
@@ -77,6 +101,9 @@ class ChatProvider extends ChangeNotifier {
             'isSeen': false,
           });
       _firebaseChatCore.sendMessage(partialImage, roomId);
+      image = null;
+      partialImage = null;
+      _databaseService.updateLastMessage(roomId, 'image');
     }
   }
 
@@ -96,28 +123,12 @@ class ChatProvider extends ChangeNotifier {
           'isSeen': false,
         },
       );
-
-      log(partialVideo!.uri);
-      //log(video!.lengthSync().toString());
-      //log(videoUri);
       _firebaseChatCore.sendMessage(partialVideo, roomId);
+      video = null;
+      partialVideo = null;
+      _databaseService.updateLastMessage(roomId, 'video');
     }
   }
-
-/*   void handleImageSelection() async {
-    final result = await ImagePicker().pickImage(
-      imageQuality: 70,
-      maxWidth: 1440,
-      source: ImageSource.gallery,
-    );
-    if (result != null) {
-      final bytes = await result.readAsBytes();
-      // final image = await decodeImageFromList(bytes);
-
-      partialImage =
-          PartialImage(name: '', size: bytes.length, uri: result.path);
-    }
-  } */
 
   ChatProvider({required this.roomId}) {
     getRoom();
@@ -125,8 +136,10 @@ class ChatProvider extends ChangeNotifier {
 
   @override
   void dispose() {
+    _messagesSubscription?.cancel();
+    _roomSubscription?.cancel();
+    _messages = [];
+    _room = null;
     super.dispose();
-    _roomSubscription.cancel();
-    _messagesSubscription.cancel();
   }
 }

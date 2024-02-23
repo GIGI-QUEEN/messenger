@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart';
 import 'package:secure_messenger/pages/chat_page/message_tile/image_message_tile.dart';
 import 'package:secure_messenger/pages/chat_page/message_tile/text_message_tile.dart';
+import 'package:secure_messenger/pages/chat_page/message_tile/video_message_tile.dart';
 import 'package:secure_messenger/pages/chat_page/user_input.dart';
 import 'package:secure_messenger/themes/light_mode.dart';
 
@@ -22,6 +23,7 @@ class MessageTile extends StatelessWidget {
           alignment: alignment,
         );
       case MessageType.video:
+        return VideoMessageTile(message: message as VideoMessage);
       default:
         return Text('ERROR');
     }

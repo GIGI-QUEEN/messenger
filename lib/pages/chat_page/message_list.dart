@@ -23,7 +23,7 @@ class MessagesList extends StatelessWidget {
                   ? Alignment.centerRight
                   : Alignment.centerLeft;
           // log('status: ${message.status}');
-          log('type: ${message.type}');
+          //log('type: ${message.type}');
           return MessageTile(message: message, alignment: alignment);
           /* return TextMessageTile(
             message: message,

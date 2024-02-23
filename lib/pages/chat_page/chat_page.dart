@@ -12,8 +12,8 @@ import 'package:secure_messenger/themes/light_mode.dart';
 class ChatPage extends StatelessWidget {
   ChatPage({super.key, required this.roomId});
   final String roomId;
-  final TextEditingController _textEditingController = TextEditingController();
-  final FirebaseChatCore _chatCore = FirebaseChatCore.instance;
+  /*  final TextEditingController _textEditingController = TextEditingController();
+  final FirebaseChatCore _chatCore = FirebaseChatCore.instance; */
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
@@ -37,29 +37,6 @@ class ChatPage extends StatelessWidget {
               child: Column(children: [
                 Expanded(child: MessagesList(messages: model.messages)),
                 UserInput(),
-                /*  Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _textEditingController,
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(),
-                          hintText: 'enter message',
-                        ),
-                      ),
-                    ),
-                    OutlinedButton(
-                        onPressed: () {
-                          final text = PartialText(
-                              text: _textEditingController.text,
-                              metadata: const {
-                                'isSeen': false,
-                              });
-                          _chatCore.sendMessage(text, roomId);
-                        },
-                        child: const Text('send'))
-                  ],
-                ) */
               ]),
             ),
           );

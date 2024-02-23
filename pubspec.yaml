@@ -22,9 +22,11 @@ dependencies:
   uuid: ^4.3.3
   video_player: ^2.8.2
   chewie: ^1.4.0
-  flutter_firebase_chat_core: ^1.6.7
   flutter_chat_types: ^3.6.2
   provider: ^6.1.1
+  flutter_firebase_chat_core:
+    git:
+      url: https://github.com/GIGI-QUEEN/flutter_firebase_chat_core.git
 
 dev_dependencies:
   flutter_test:

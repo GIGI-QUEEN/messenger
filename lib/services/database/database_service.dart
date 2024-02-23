@@ -31,20 +31,14 @@ class DatabaseService {
     });
   }
 
-  void updateMessageToVideo(String roomId) {}
-
-/*   Future<types.User> getUserById(String id) async {
-    // types.User user = types.User(id: id);
-    return await _firestore.collection('users').doc(id).get().then((snapshot) {
-      final data = Map<String, dynamic>.from(snapshot.data() as dynamic);
-      types.User user = types.User(id: id, imageUrl: data['imageUrl']);
-      /* data.forEach((key, value) {
-      //  user = value;
-      },); */
-      // types.User user = types.User(id: id);
-      //log(user.toString());
-      return user;
+  void updateMessageStatus(String roomId, String messageId) async {
+    await _firestore
+        .collection('rooms')
+        .doc(roomId)
+        .collection('messages')
+        .doc(messageId)
+        .update({
+      'metadata': {'isSeen': true}
     });
-    //return user;
-  } */
+  }
 }

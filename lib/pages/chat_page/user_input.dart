@@ -168,11 +168,17 @@ class SendButton extends StatelessWidget {
       builder: (context, model, child) {
         return IconButton(
           onPressed: () {
-            /*  if (model.image != null) {
+            if (model.image != null) {
               model.sendImageMessage();
-            } */
+              return;
+            }
             if (model.video != null) {
               model.sendVideoMessage();
+              return;
+            }
+            if (model.textEditingController.text != '') {
+              model.sendTextMessage();
+              return;
             }
             /*   if (model.image != null) {
               model.sendImageMessage();

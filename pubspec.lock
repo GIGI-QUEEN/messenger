@@ -281,10 +281,11 @@ packages:
   flutter_firebase_chat_core:
     dependency: "direct main"
     description:
-      name: flutter_firebase_chat_core
-      sha256: c50044da9b7a722533a0d1bce39bddafaba0a8068be74bda4d7979b3ae15fc59
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: HEAD
+      resolved-ref: fbdab9c15e0e93c634eeb903ac3c5ac6aa7ab6c8
+      url: "https://github.com/GIGI-QUEEN/flutter_firebase_chat_core.git"
+    source: git
     version: "1.6.7"
   flutter_lints:
     dependency: "direct dev"

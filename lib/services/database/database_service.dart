@@ -1,4 +1,7 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_firebase_chat_core/flutter_firebase_chat_core.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 
@@ -41,4 +44,30 @@ class DatabaseService {
       'metadata': {'isSeen': true}
     });
   }
+
+  void addUserToContacts(String userId, String contactId) async {
+    await _firestore.collection('users').doc(userId).update({
+      'contacts': FieldValue.arrayUnion([contactId])
+    });
+  }
+
+  Future<Map<String, dynamic>> getUserById(String userId) async {
+    return await fetchUser(_firestore, userId, 'users');
+  }
+
+  Future<List<dynamic>> getContacts(String userId) async {
+    return await _firestore
+        .collection('users')
+        .doc(userId)
+        .get()
+        .then((snapshot) {
+      final Map<String, dynamic> data =
+          Map<String, dynamic>.from(snapshot.data() as dynamic);
+      return data['contacts'] as List<dynamic>;
+    });
+  }
+
+  /* void isContact(String userId, String contactId) async {
+    await _firestore.collection('users').doc(userId).ge
+  } */
 }

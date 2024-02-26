@@ -4,9 +4,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:secure_messenger/components/my_textfield.dart';
 
-import '../components/my_button.dart';
-import '../services/auth/auth_service.dart';
-import '../services/chat/chat_service.dart';
+import '../../components/my_button.dart';
+import '../../services/auth/auth_service.dart';
+import '../../services/chat/chat_service.dart';
 
 class SearchPage extends StatefulWidget {
   SearchPage({super.key});

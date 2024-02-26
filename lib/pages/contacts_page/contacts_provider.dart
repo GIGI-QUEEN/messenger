@@ -5,16 +5,18 @@ import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_firebase_chat_core/flutter_firebase_chat_core.dart';
 import 'package:secure_messenger/services/database/database_service.dart';
 
-class UsersProvider extends ChangeNotifier {
+class ContactsProvider extends ChangeNotifier {
   List<types.User> _users = [];
   List<types.User> get users => _users;
+  List<types.User> _contacts = [];
+  List<types.User> get contacts => _contacts;
   final DatabaseService _databaseService = DatabaseService();
   final FirebaseChatCore _firebaseChatCore = FirebaseChatCore.instance;
 
   void listenToUsers() {
     _databaseService.getAllUsers().listen((event) {
       _users = event;
-      log(_users.toString());
+      // log(_users.toString());
       notifyListeners();
     });
   }
@@ -24,7 +26,24 @@ class UsersProvider extends ChangeNotifier {
     return room.id;
   }
 
-  UsersProvider() {
+  void addToContacts(String contactId) {
+    _databaseService.addUserToContacts(
+        _firebaseChatCore.firebaseUser!.uid, contactId);
+  }
+
+  void fetchContacts() async {
+    final contacts =
+        await _databaseService.getContacts(_firebaseChatCore.firebaseUser!.uid);
+    for (final contactId in contacts) {
+      final userData = await _databaseService.getUserById(contactId as String);
+      final user = types.User.fromJson(userData);
+      _contacts.add(user);
+      notifyListeners();
+    }
+  }
+
+  ContactsProvider() {
     listenToUsers();
+    fetchContacts();
   }
 }

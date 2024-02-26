@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:secure_messenger/components/my_list_tile.dart';
-import 'package:secure_messenger/pages/users_page/users_page.dart';
+import 'package:secure_messenger/pages/contacts_page/contacts_page.dart';
 
-import '../pages/search_page.dart';
+import '../pages/search_page/search_page.dart';
 import '../pages/settings_page.dart';
 
 class MyDrawer extends StatelessWidget {
@@ -38,14 +38,14 @@ class MyDrawer extends StatelessWidget {
               // home list tile
               MyListTile(
                 icon: Icons.home,
-                text: 'H O M E',
+                text: 'Home',
                 onTap: () => Navigator.pop(context),
               ),
 
               // search list tile
               MyListTile(
                 icon: Icons.add_box_outlined,
-                text: 'S E A R C H',
+                text: 'Search',
                 onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -58,12 +58,12 @@ class MyDrawer extends StatelessWidget {
 
               MyListTile(
                 icon: Icons.person,
-                text: 'P R O F I L E',
+                text: 'Profile',
                 onTap: onProfileTap,
               ),
               MyListTile(
                 icon: Icons.people,
-                text: 'Users',
+                text: 'Contacts',
                 onTap: () {
                   // pop the drawer
                   Navigator.pop(context);
@@ -72,7 +72,7 @@ class MyDrawer extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const UsersPage(),
+                      builder: (context) => const ContactsPage(),
                     ),
                   );
                 },
@@ -80,7 +80,7 @@ class MyDrawer extends StatelessWidget {
 
               MyListTile(
                 icon: Icons.settings,
-                text: 'S E T T I N G S',
+                text: 'Settings',
                 onTap: () {
                   // pop the drawer
                   Navigator.pop(context);

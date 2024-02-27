@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:secure_messenger/constants/routes.dart';
@@ -32,9 +34,10 @@ class ContactsPage extends StatelessWidget {
             return Container(
               padding: const EdgeInsets.symmetric(horizontal: 15),
               child: ListView.builder(
-                itemCount: model.users.length,
+                itemCount: model.contacts.length,
                 itemBuilder: (context, index) {
-                  final user = model.users[index];
+                  final user = model.contacts[index];
+                  log('USER: $user');
                   return UserTile(
                     user: user,
                     onTap: () async {

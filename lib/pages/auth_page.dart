@@ -4,7 +4,7 @@ import 'package:secure_messenger/pages/rooms_page/rooms_page.dart';
 import 'package:secure_messenger/pages/contacts_page/contacts_page.dart';
 import 'package:secure_messenger/services/auth/login_or_register.dart';
 
-import 'home_page.dart';
+import 'home_page/home_page.dart';
 
 class AuthPage extends StatelessWidget {
   const AuthPage({super.key});

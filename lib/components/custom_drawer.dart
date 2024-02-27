@@ -33,17 +33,14 @@ class CustomDrawer extends StatelessWidget {
                   ),
                 ),
               ),
-
-              // home list tile
               MyListTile(
-                icon: Icons.home,
-                text: 'Home',
-                onTap: () => Navigator.pop(context),
+                icon: Icons.person,
+                text: 'Profile',
+                onTap: onProfileTap,
               ),
 
-              // search list tile
               MyListTile(
-                icon: Icons.add_box_outlined,
+                icon: Icons.search,
                 text: 'Search',
                 onTap: () => Navigator.push(
                   context,
@@ -55,11 +52,6 @@ class CustomDrawer extends StatelessWidget {
 
               // settings list tile
 
-              MyListTile(
-                icon: Icons.person,
-                text: 'Profile',
-                onTap: onProfileTap,
-              ),
               MyListTile(
                 icon: Icons.people,
                 text: 'Contacts',

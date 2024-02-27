@@ -6,7 +6,7 @@ import 'package:secure_messenger/pages/profile_page/profile_page.dart';
 import 'package:secure_messenger/pages/rooms_page/rooms_page.dart';
 import 'package:secure_messenger/services/auth/auth_service.dart';
 
-import '../components/custom_drawer.dart';
+import '../../components/custom_drawer.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({super.key});

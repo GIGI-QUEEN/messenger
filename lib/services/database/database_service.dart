@@ -75,4 +75,15 @@ class DatabaseService {
       'imageUrl': imageUrl,
     });
   }
+
+  Future<String?> getUserProfileImageUrl(String userId) async {
+    return await _firestore
+        .collection('users')
+        .doc(userId)
+        .get()
+        .then((snapshot) {
+      final data = Map<String, dynamic>.from(snapshot.data() as dynamic);
+      return data['imageUrl'] as String;
+    });
+  }
 }

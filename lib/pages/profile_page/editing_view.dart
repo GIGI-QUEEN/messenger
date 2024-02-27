@@ -17,6 +17,7 @@ class EditingView extends StatelessWidget {
               radius: 100,
               iconColor: Colors.white,
               iconSize: 150,
+              iconBorderColor: Colors.white,
             ),
             /*  const SizedBox(
               height: 10,

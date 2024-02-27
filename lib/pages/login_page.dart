@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:local_auth/local_auth.dart';
 
 import '../components/my_button.dart';
-import '../components/my_textfield.dart';
+import '../components/custom_textfield.dart';
 import '../services/auth/auth_service.dart';
 
 class LoginPage extends StatefulWidget {
@@ -125,7 +125,7 @@ class _LoginPageState extends State<LoginPage> {
                     const SizedBox(height: 25),
 
                     // email textfield
-                    MyTextField(
+                    CustomTextField(
                       controller: _emailController,
                       hintText: 'Email',
                       obscureText: false,
@@ -134,7 +134,7 @@ class _LoginPageState extends State<LoginPage> {
                     const SizedBox(height: 10),
 
                     // password textfield
-                    MyTextField(
+                    CustomTextField(
                       controller: _passwordController,
                       hintText: 'Password',
                       obscureText: true,

@@ -34,17 +34,6 @@ class DatabaseService {
     });
   }
 
-  void updateMessageStatus(String roomId, String messageId) async {
-    await _firestore
-        .collection('rooms')
-        .doc(roomId)
-        .collection('messages')
-        .doc(messageId)
-        .update({
-      'metadata': {'isSeen': true}
-    });
-  }
-
   void addUserToContacts(String userId, String contactId) async {
     await _firestore.collection('users').doc(userId).update({
       'contacts': FieldValue.arrayUnion([contactId])
@@ -67,7 +56,23 @@ class DatabaseService {
     });
   }
 
-  /* void isContact(String userId, String contactId) async {
-    await _firestore.collection('users').doc(userId).ge
-  } */
+  Future<String?> getUserByUsernameOrEmail(String enteredName) async {
+    QuerySnapshot querySnapshot = await _firestore
+        .collection('users')
+        .where(Filter.or(Filter('metadata.email', isEqualTo: enteredName),
+            Filter('metadata.username', isEqualTo: enteredName)))
+        .limit(1)
+        .get();
+    if (querySnapshot.docs.isNotEmpty) {
+      final doc = querySnapshot.docs.elementAt(0);
+      return doc.id;
+    }
+    return null;
+  }
+
+  void updateUserProfileImageUrl(String userId, String imageUrl) async {
+    await _firestore.collection('users').doc(userId).update({
+      'imageUrl': imageUrl,
+    });
+  }
 }

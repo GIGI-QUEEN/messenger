@@ -1,37 +1,10 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart';
 import 'package:secure_messenger/pages/chat_page/message_tile/image_message_tile.dart';
 import 'package:secure_messenger/pages/chat_page/message_tile/text_message_tile.dart';
 import 'package:secure_messenger/pages/chat_page/message_tile/video_message_tile.dart';
-import 'package:secure_messenger/pages/chat_page/user_input.dart';
-import 'package:secure_messenger/services/chat/chat_service_v2.dart';
+import 'package:secure_messenger/services/chat/chat_service.dart';
 import 'package:secure_messenger/themes/light_mode.dart';
-
-/* class MessageTile extends StatelessWidget {
-  const MessageTile(
-      {super.key, required this.message, required this.alignment});
-  final Message message;
-  final Alignment alignment;
-  @override
-  Widget build(BuildContext context) {
-    switch (message.type) {
-      case MessageType.text:
-        return TextMessageTile(
-            message: message as TextMessage, alignment: alignment);
-      case MessageType.image:
-        return ImageMessageTile(
-          message: message as ImageMessage,
-          alignment: alignment,
-        );
-      case MessageType.video:
-        return VideoMessageTile(message: message as VideoMessage);
-      default:
-        return Text('ERROR');
-    }
-  }
-} */
 
 class MessageTile extends StatelessWidget {
   MessageTile({
@@ -49,8 +22,7 @@ class MessageTile extends StatelessWidget {
   final BorderRadius borderRadius;
   final Color bgColor;
   final String roomId;
-  final ChatServiceV2 _chatService = ChatServiceV2();
-  // final TextEditingController _textEditingController = TextEditingController.fromValue(TextEditingValue(text: (message as TextMessage).text));
+  final ChatService _chatService = ChatService();
   @override
   Widget build(BuildContext context) {
     final isEditMessageDisabled = message.type == MessageType.text
@@ -140,7 +112,7 @@ class EditMessageField extends StatelessWidget {
   });
   final TextMessage message;
   final String roomId;
-  final ChatServiceV2 _chatServiceV2 = ChatServiceV2();
+  final ChatService _chatServiceV2 = ChatService();
   @override
   Widget build(BuildContext context) {
     final initialText = message.text;

@@ -34,11 +34,10 @@ class MediaService {
     });
   }
 
-  Future<String> uploadImage(File image) async {
+  Future<String> uploadImage(File image, String path) async {
     String fileName = const Uuid().v1();
 
-    final imageRef =
-        FirebaseStorage.instance.ref().child('images').child(fileName);
+    final imageRef = FirebaseStorage.instance.ref().child(path).child(fileName);
     final task = await imageRef.putFile(image);
     return task.ref.getDownloadURL();
     //String fileUrl = await uploadTask.ref.getDownloadURL();

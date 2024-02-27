@@ -5,6 +5,7 @@ import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart';
 import 'package:flutter_firebase_chat_core/flutter_firebase_chat_core.dart';
+import 'package:secure_messenger/services/chat/chat_service.dart';
 import 'package:secure_messenger/services/database/database_service.dart';
 import 'package:secure_messenger/services/media/media_service.dart';
 import 'package:video_player/video_player.dart';
@@ -29,15 +30,11 @@ class ChatProvider extends ChangeNotifier {
   final FirebaseChatCore _firebaseChatCore = FirebaseChatCore.instance;
   final DatabaseService _databaseService = DatabaseService();
   final MediaService _mediaService = MediaService();
+  final ChatService _chatService = ChatService();
 
   //STREAMS
   StreamSubscription? _roomSubscription;
   StreamSubscription? _messagesSubscription;
-
-  //PLAYING VIDEO
-  /*  late VideoPlayerController _videoPlayerController;
-  late ChewieController _chewieController;
- */
 
   void getRoom() {
     _roomSubscription = _firebaseChatCore.room(roomId).listen((roomStream) {
@@ -49,8 +46,7 @@ class ChatProvider extends ChangeNotifier {
         //reading freshly received message if user currently at room page
         if (_messages.elementAt(0).author.id !=
             _firebaseChatCore.firebaseUser!.uid) {
-          _databaseService.updateMessageStatus(
-              roomId, _messages.elementAt(0).id);
+          _chatService.updateMessageStatus(roomId, _messages.elementAt(0).id);
         }
         notifyListeners();
       });
@@ -83,7 +79,6 @@ class ChatProvider extends ChangeNotifier {
     _firebaseChatCore.sendMessage(text, roomId);
     textEditingController.clear();
     _databaseService.updateLastMessage(roomId, text.text);
-    // _firebaseChatCore.updateRoom(_room!);
   }
 
   void pickImage() async {
@@ -92,7 +87,7 @@ class ChatProvider extends ChangeNotifier {
 
   void sendImageMessage() async {
     if (image != null) {
-      final imageUri = await _mediaService.uploadImage(image!);
+      final imageUri = await _mediaService.uploadImage(image!, 'images');
       partialImage = PartialImage(
           name: '',
           size: image!.lengthSync(),

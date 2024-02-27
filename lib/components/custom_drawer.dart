@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:secure_messenger/components/my_list_tile.dart';
 import 'package:secure_messenger/pages/contacts_page/contacts_page.dart';
-
-import '../pages/search_page/search_page.dart';
+import 'package:secure_messenger/pages/search_page/search_page.dart';
 import '../pages/settings_page.dart';
 
-class MyDrawer extends StatelessWidget {
+class CustomDrawer extends StatelessWidget {
   final void Function()? onProfileTap;
   final void Function()? onSignOut;
 
-  const MyDrawer({
+  const CustomDrawer({
     super.key,
     required this.onProfileTap,
     required this.onSignOut,
@@ -100,7 +99,7 @@ class MyDrawer extends StatelessWidget {
           // logout tile
           MyListTile(
             icon: Icons.logout,
-            text: 'L O G O U T',
+            text: 'Logout',
             onTap: onSignOut,
           ),
         ],

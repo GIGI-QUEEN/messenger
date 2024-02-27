@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
       home: const AuthPage(), // const GenerateQRCode()
       theme: darkMode,
       routes: {
-        searchPage: (context) => SearchPage(),
+        searchPage: (context) => const SearchPage(),
         contactsPage: (context) => const ContactsPage(),
       },
     );

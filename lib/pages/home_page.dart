@@ -1,17 +1,12 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
 
-import 'dart:developer';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:secure_messenger/components/last_message.dart';
+import 'package:flutter_firebase_chat_core/flutter_firebase_chat_core.dart';
+import 'package:secure_messenger/pages/profile_page/profile_page.dart';
 import 'package:secure_messenger/pages/rooms_page/rooms_page.dart';
 import 'package:secure_messenger/services/auth/auth_service.dart';
-import 'package:secure_messenger/services/chat/chat_service.dart';
 
-import '../components/my_drawer.dart';
-import '../components/user_tile.dart';
-import 'chat_page.dart';
-import 'profile_page.dart';
+import '../components/custom_drawer.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({super.key});
@@ -22,8 +17,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
 // chat and auth service
-  final ChatService _chatService = ChatService();
-  final AuthService _authService = AuthService();
+  final FirebaseChatCore _firebaseChatCore = FirebaseChatCore.instance;
 
   void logout() {
     // get auth service
@@ -39,7 +33,9 @@ class _HomePageState extends State<HomePage> {
     Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => const ProfilePage(),
+          builder: (context) => ProfilePage(
+            userId: _firebaseChatCore.firebaseUser!.uid,
+          ),
         ));
   }
 
@@ -49,7 +45,7 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.background,
       ),
-      drawer: MyDrawer(
+      drawer: CustomDrawer(
         onProfileTap: goToProfilePage,
         onSignOut: logout,
       ),

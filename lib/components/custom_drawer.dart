@@ -10,9 +10,8 @@ import '../pages/settings_page.dart';
 class CustomDrawer extends StatelessWidget {
   final void Function()? onProfileTap;
   final void Function()? onSignOut;
-  final EncryptionService _encryption = EncryptionService();
 
-  CustomDrawer({
+  const CustomDrawer({
     super.key,
     required this.onProfileTap,
     required this.onSignOut,
@@ -37,16 +36,7 @@ class CustomDrawer extends StatelessWidget {
                   ),
                 ),
               ),
-              ElevatedButton(
-                  onPressed: () async {
-                    /*     final keyPair = _encryption
-                        .generateRSAkeyPair(_encryption.exampleSecureRandom());
-                    log('public: ${keyPair.publicKey}'); */
 
-                    //log('private: ${keyPair.privateKey}');
-                    // CryptoUtils.encodeRSAPrivateKeyToPemPkcs1(rsaPrivateKey)
-                  },
-                  child: const Text('generate')),
               MyListTile(
                 icon: Icons.person,
                 text: 'Profile',

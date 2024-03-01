@@ -35,8 +35,8 @@ class ChatPage extends StatelessWidget {
                   ),
                 ),
                 IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.more_vert_outlined))
+                    onPressed: () => model.changeRoomSecurityStatus(),
+                    icon: Icon(model.isSecured ? Icons.lock : Icons.lock_open))
               ],
               centerTitle: true,
               backgroundColor: darkMode.colorScheme.background,
@@ -55,6 +55,7 @@ class ChatPage extends StatelessWidget {
                   child: MessagesList(
                     messages: model.messages,
                     roomid: model.roomId,
+                    isSecured: model.isSecured,
                   ),
                 ),
                 UserInput(),

@@ -103,15 +103,6 @@ class EncryptionService {
     return encrypter.decrypt(encryptedMessage);
   }
 
-  String decryptSentMessage(encrypt.Encrypted encryptedMessage,
-      String senderPublicKey, String senderPrivateKey) {
-    final public = CryptoUtils.rsaPublicKeyFromPemPkcs1(senderPublicKey);
-    final private = CryptoUtils.rsaPrivateKeyFromPemPkcs1(senderPrivateKey);
-    final encrypter =
-        encrypt.Encrypter(encrypt.RSA(publicKey: public, privateKey: private));
-    return encrypter.decrypt(encryptedMessage);
-  }
-
   SecureRandom exampleSecureRandom() {
     final secureRandom = SecureRandom('Fortuna')
       ..seed(

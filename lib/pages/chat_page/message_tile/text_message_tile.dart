@@ -20,7 +20,10 @@ class TextMessageTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<ChatProvider>(
       builder: (context, model, _) {
-        model.decryptMessageText(message);
+        String textToShow = message.text;
+        if (message.metadata!['isEncrypted'] == true) {
+          textToShow = model.decryptMessageText(message);
+        }
 
         return Container(
           padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
@@ -31,7 +34,7 @@ class TextMessageTile extends StatelessWidget {
             color: bgColor,
           ),
           child: Text(
-            message.text,
+            textToShow,
             style: const TextStyle(color: Colors.white, fontSize: 18),
           ),
         );

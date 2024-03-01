@@ -14,11 +14,14 @@ import 'package:video_player/video_player.dart';
 
 class ChatProvider extends ChangeNotifier {
   final String roomId;
+  bool isSecured = false;
   Room? _room;
   Room? get room => _room;
   List<Message> _messages = [];
   List<Message> get messages => _messages;
   final TextEditingController textEditingController = TextEditingController();
+  late String currentUserPublicKey;
+  late String currentUserPrivateKey;
 
   //IMAGE MESSAGE
   File? image;
@@ -59,6 +62,7 @@ class ChatProvider extends ChangeNotifier {
     //  notifyListeners(); //not sure if it's needed
   }
 
+  /// Exctarct companion
   User? companion() {
     final currentUserId = _firebaseChatCore.firebaseUser!.uid;
     if (room != null) {
@@ -67,28 +71,38 @@ class ChatProvider extends ChangeNotifier {
     return null;
   }
 
-  void decryptMessageText(TextMessage message) async {
+  /// Decrypt text of encrypted message
+  String decryptMessageText(TextMessage message) {
     final Encrypted textAsBase64ForReceiver =
         Encrypted.fromBase64(message.text);
     final Encrypted textAsBase64ForSender =
         Encrypted.fromBase64(message.metadata!['forSenderToDecrypt']);
-    String decryptedText = '';
-    if (message.author.id == _firebaseChatCore.firebaseUser!.uid) {
-      log('HERE');
 
-      final String senderPublicKey = await _encryptionService.getPublicKey();
-      final String senderPrivateKey = await _encryptionService.getPrivateKey();
-      decryptedText = _encryptionService.decryptSentMessage(
-          textAsBase64ForSender, senderPublicKey, senderPrivateKey);
-      log('Decrypted message (sender): $decryptedText');
-    } else {
-      final String senderPublicKey = companion()?.metadata!['publicKey'];
-      final String receiverPrivateKey =
-          await _encryptionService.getPrivateKey();
-      decryptedText = _encryptionService.decryptMessage(
-          textAsBase64ForReceiver, senderPublicKey, receiverPrivateKey);
-      log('Decrypted message (receiver): $decryptedText');
+    String decryptedText = '';
+
+    if (message.metadata!['isEncrypted'] == true) {
+      if (message.author.id == _firebaseChatCore.firebaseUser!.uid) {
+        decryptedText = _decryptMessageAsSender(textAsBase64ForSender);
+      } else {
+        decryptedText = _decryptMessageAsReceiver(textAsBase64ForReceiver);
+      }
     }
+    log('decrypted text: $decryptedText');
+    return decryptedText;
+  }
+
+/*   Future<String> _decryptMessageAsSender(Encrypted textAsBase64) async {
+    final String senderPublicKey = await _encryptionService.getPublicKey();
+    final String senderPrivateKey = await _encryptionService.getPrivateKey();
+    return _encryptionService.decryptMessage(
+        textAsBase64, senderPublicKey, senderPrivateKey);
+  }
+
+  Future<String> _decryptMessageAsReceiver(Encrypted textAsBase64) async {
+    final String senderPublicKey = companion()?.metadata!['publicKey'];
+    final String receiverPrivateKey = await _encryptionService.getPrivateKey();
+    return _encryptionService.decryptMessage(
+        textAsBase64, senderPublicKey, receiverPrivateKey);
   }
 
   /// Encrypting message so only receiver will be able to decrypt it
@@ -107,21 +121,73 @@ class ChatProvider extends ChangeNotifier {
     final encryptedText = _encryptionService.encryptMessage(
         text, senderPublicKey, senderPrivateKey);
     return encryptedText.base64;
+  } */
+
+  String _decryptMessageAsSender(Encrypted textAsBase64) {
+    return _encryptionService.decryptMessage(
+        textAsBase64, currentUserPublicKey, currentUserPrivateKey);
   }
 
-  void sendTextMessage() async {
-    final encryptedTextReceiver =
-        await _encryptTextMessageForReceiver(textEditingController.text);
-    final encryptedTextSender =
-        await _encryptTextMessageForSender(textEditingController.text);
+  String _decryptMessageAsReceiver(Encrypted textAsBase64) {
+    final String senderPublicKey = companion()?.metadata!['publicKey'];
 
+    return _encryptionService.decryptMessage(
+        textAsBase64, senderPublicKey, currentUserPrivateKey);
+  }
+
+  /// Encrypting message so only receiver will be able to decrypt it
+  String _encryptTextMessageForReceiver(String text) {
+    final receiverPublicKey = companion()!.metadata!['publicKey'];
+    final encryptedText = _encryptionService.encryptMessage(
+        text, receiverPublicKey, currentUserPrivateKey);
+    return encryptedText.base64;
+  }
+
+  /// Enccrypting message so only sender will be able to see it
+  String _encryptTextMessageForSender(String text) {
+    final encryptedText = _encryptionService.encryptMessage(
+        text, currentUserPublicKey, currentUserPrivateKey);
+    return encryptedText.base64;
+  }
+
+  /// Sends encrypted message
+  void _sendSecuredMessage() async {
+    final encryptedTextReceiver =
+        _encryptTextMessageForReceiver(textEditingController.text);
+    final encryptedTextSender =
+        _encryptTextMessageForSender(textEditingController.text);
     final text = PartialText(
       text: encryptedTextReceiver,
-      metadata: {'isSeen': false, 'forSenderToDecrypt': encryptedTextSender},
+      metadata: {
+        'isSeen': false,
+        'isEncrypted': true,
+        'forSenderToDecrypt': encryptedTextSender,
+      },
+    );
+    _firebaseChatCore.sendMessage(text, roomId);
+    textEditingController.clear();
+  }
+
+  /// Sends plain text message
+  void _sendPlainTextMessage() {
+    final text = PartialText(
+      text: textEditingController.text,
+      metadata: const {
+        'isSeen': false,
+        'isEncrypted': false,
+      },
     );
     _firebaseChatCore.sendMessage(text, roomId);
     textEditingController.clear();
     _databaseService.updateLastMessage(roomId, text.text);
+  }
+
+  void sendTextMessage() {
+    if (isSecured) {
+      _sendSecuredMessage();
+      return;
+    }
+    _sendPlainTextMessage();
   }
 
   void pickImage() async {
@@ -168,8 +234,20 @@ class ChatProvider extends ChangeNotifier {
     }
   }
 
+  /// Sets room to secured/not secured state. When isSecret is true, all messages are encrypted
+  void changeRoomSecurityStatus() {
+    isSecured = !isSecured;
+    notifyListeners();
+  }
+
+  void exctactCurrentUserSecurityKeys() async {
+    currentUserPublicKey = await _encryptionService.getPublicKey();
+    currentUserPrivateKey = await _encryptionService.getPrivateKey();
+  }
+
   ChatProvider({required this.roomId}) {
     getRoom();
+    exctactCurrentUserSecurityKeys();
   }
 
   @override

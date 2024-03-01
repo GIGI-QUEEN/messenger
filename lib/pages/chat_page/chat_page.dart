@@ -25,14 +25,18 @@ class ChatPage extends StatelessWidget {
             appBar: AppBar(
               actions: [
                 IconButton(
-                    onPressed: () =>
-                        navigatoToProfilePage(context, model.companion()!.id),
-                    icon: UserAvatar(
-                      imageUrl: model.companion()?.imageUrl,
-                      iconColor: Colors.white,
-                      iconBorderColor: Colors.white,
-                      iconSize: 30,
-                    ))
+                  onPressed: () =>
+                      navigatoToProfilePage(context, model.companion()!.id),
+                  icon: UserAvatar(
+                    imageUrl: model.companion()?.imageUrl,
+                    iconColor: Colors.white,
+                    iconBorderColor: Colors.white,
+                    iconSize: 30,
+                  ),
+                ),
+                IconButton(
+                    onPressed: () {},
+                    icon: const Icon(Icons.more_vert_outlined))
               ],
               centerTitle: true,
               backgroundColor: darkMode.colorScheme.background,

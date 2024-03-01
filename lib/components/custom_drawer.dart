@@ -1,14 +1,18 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:secure_messenger/components/my_list_tile.dart';
 import 'package:secure_messenger/pages/contacts_page/contacts_page.dart';
 import 'package:secure_messenger/pages/search_page/search_page.dart';
+import 'package:secure_messenger/services/encryption/encryption_serivce.dart';
 import '../pages/settings_page.dart';
 
 class CustomDrawer extends StatelessWidget {
   final void Function()? onProfileTap;
   final void Function()? onSignOut;
+  final EncryptionService _encryption = EncryptionService();
 
-  const CustomDrawer({
+  CustomDrawer({
     super.key,
     required this.onProfileTap,
     required this.onSignOut,
@@ -33,6 +37,16 @@ class CustomDrawer extends StatelessWidget {
                   ),
                 ),
               ),
+              ElevatedButton(
+                  onPressed: () async {
+                    /*     final keyPair = _encryption
+                        .generateRSAkeyPair(_encryption.exampleSecureRandom());
+                    log('public: ${keyPair.publicKey}'); */
+
+                    //log('private: ${keyPair.privateKey}');
+                    // CryptoUtils.encodeRSAPrivateKeyToPemPkcs1(rsaPrivateKey)
+                  },
+                  child: const Text('generate')),
               MyListTile(
                 icon: Icons.person,
                 text: 'Profile',

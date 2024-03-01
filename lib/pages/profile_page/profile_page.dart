@@ -20,8 +20,12 @@ class ProfilePage extends StatelessWidget {
         builder: (context, model, child) {
           return Scaffold(
             appBar: ProfilePageAppBar(),
-            body:
-                model.isEditing ? EditingView() : UserProfile(user: model.user),
+            body: model.isEditing
+                ? EditingView()
+                : UserProfile(
+                    user: model.user,
+                    addToContacts: model.addToContacts,
+                  ),
           );
         },
       ),
@@ -66,9 +70,10 @@ class ProfilePageAppBar extends StatelessWidget implements PreferredSizeWidget {
 }
 
 class UserProfile extends StatelessWidget {
-  const UserProfile({super.key, required this.user});
+  const UserProfile(
+      {super.key, required this.user, required this.addToContacts});
   final User user;
-
+  final Function(String contactId) addToContacts;
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -91,6 +96,8 @@ class UserProfile extends StatelessWidget {
             height: 20,
           ),
           const Bio(bio: 'bio'),
+          OutlinedButton(
+              onPressed: () => addToContacts(user.id), child: const Text('add'))
         ],
       ),
     );

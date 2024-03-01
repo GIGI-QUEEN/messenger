@@ -60,6 +60,11 @@ class ProfileProvider extends ChangeNotifier {
     cancelEditing();
   }
 
+  void addToContacts(String contactId) {
+    _databaseService.addUserToContacts(
+        _firebaseChatCore.firebaseUser!.uid, contactId);
+  }
+
   ProfileProvider({required this.userId}) {
     fetchUserData();
   }

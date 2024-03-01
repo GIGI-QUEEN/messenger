@@ -28,6 +28,10 @@ dependencies:
     git:
       url: https://github.com/GIGI-QUEEN/flutter_firebase_chat_core.git
   intl: ^0.19.0
+  encrypt: ^5.0.3
+  pointycastle: ^3.7.4
+  shared_preferences: ^2.2.2
+  basic_utils: ^5.7.0
 
 dev_dependencies:
   flutter_test:

@@ -5,6 +5,7 @@ import 'package:flutter_firebase_chat_core/flutter_firebase_chat_core.dart';
 import 'package:secure_messenger/pages/profile_page/profile_page.dart';
 import 'package:secure_messenger/pages/rooms_page/rooms_page.dart';
 import 'package:secure_messenger/services/auth/auth_service.dart';
+import 'package:secure_messenger/services/encryption/encryption_serivce.dart';
 
 import '../../components/custom_drawer.dart';
 

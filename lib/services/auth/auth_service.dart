@@ -7,12 +7,15 @@ import 'package:flutter/services.dart';
 import 'package:flutter_firebase_chat_core/flutter_firebase_chat_core.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:pointycastle/api.dart';
+import 'package:pointycastle/asymmetric/api.dart';
+import 'package:secure_messenger/services/encryption/encryption_serivce.dart';
 
 class AuthService {
   // instance of auth
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
+  final EncryptionService _encryption = EncryptionService();
   User? getCurrentUser() {
     return _auth.currentUser;
   }
@@ -64,6 +67,8 @@ class AuthService {
   // sign up
   Future<void> signUpWithEmailPassword(String email, password, username) async {
     try {
+      final AsymmetricKeyPair<RSAPublicKey, RSAPrivateKey> keyPair =
+          _encryption.generateRSAkeyPair(_encryption.exampleSecureRandom());
       // create user
       UserCredential userCredential =
           await _auth.createUserWithEmailAndPassword(
@@ -71,21 +76,16 @@ class AuthService {
         password: password,
       );
 
+      _encryption.saveKeyPairToDeviceStorage(keyPair);
+      final encodedKeyPair = _encryption.encodeKeyPairToString(keyPair);
+
       await FirebaseChatCore.instance.createUserInFirestore(
           types.User(id: userCredential.user!.uid, metadata: {
         "email": userCredential.user!.email,
         "username": username,
+        "publicKey": encodedKeyPair['publicKey'],
+        // "privateKey": encodedKeyPair['privateKey'],
       }));
-      /*    // save user info in a separate document
-      await _firestore.collection('users').doc(userCredential.user!.uid).set(
-        {
-          'uid': userCredential.user!.uid,
-          'email': email,
-          'username': email,
-          'bio': 'Empty bio',
-          'profile_image': '',
-        },
-      ); */
 
       //return userCredential;
     } on FirebaseAuthException catch (e) {

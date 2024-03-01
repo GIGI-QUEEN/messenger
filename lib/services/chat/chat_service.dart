@@ -43,8 +43,6 @@ class ChatService {
         .doc(roomId)
         .collection('messages')
         .doc(messageId)
-        .update({
-      'metadata': {'isSeen': true}
-    });
+        .update({'metadata.isSeen': true});
   }
 }

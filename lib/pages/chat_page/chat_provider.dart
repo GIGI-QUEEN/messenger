@@ -241,8 +241,9 @@ class ChatProvider extends ChangeNotifier {
   }
 
   void exctactCurrentUserSecurityKeys() async {
-    currentUserPublicKey = await _encryptionService.getPublicKey();
-    currentUserPrivateKey = await _encryptionService.getPrivateKey();
+    final userId = _firebaseChatCore.firebaseUser!.uid;
+    currentUserPublicKey = await _encryptionService.getPublicKey(userId);
+    currentUserPrivateKey = await _encryptionService.getPrivateKey(userId);
   }
 
   ChatProvider({required this.roomId}) {

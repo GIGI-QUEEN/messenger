@@ -11,39 +11,41 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class EncryptionService {
   /// Saving user's key pair to device storage
-  void saveKeyPairToDeviceStorage(
+  void saveKeyPairToDeviceStorage(String userId,
       AsymmetricKeyPair<RSAPublicKey, RSAPrivateKey> keyPair) async {
     // Obtain shared preferences.
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    _setPrivateKey(keyPair.privateKey, prefs);
-    _setPublicKey(keyPair.publicKey, prefs);
+    _setPrivateKey(userId, keyPair.privateKey, prefs);
+    _setPublicKey(userId, keyPair.publicKey, prefs);
   }
 
   /// Set user's private key to storage
-  void _setPrivateKey(RSAPrivateKey privateKey, SharedPreferences prefs) async {
+  void _setPrivateKey(
+      String userId, RSAPrivateKey privateKey, SharedPreferences prefs) async {
     final privateKeyAsString =
         CryptoUtils.encodeRSAPrivateKeyToPemPkcs1(privateKey);
-    await prefs.setString('privateKey', privateKeyAsString);
+    await prefs.setString('${userId}_privateKey', privateKeyAsString);
   }
 
   /// Set user's public key to storage
-  void _setPublicKey(RSAPublicKey publicKey, SharedPreferences prefs) async {
+  void _setPublicKey(
+      String userId, RSAPublicKey publicKey, SharedPreferences prefs) async {
     final publicKeyAsString =
         CryptoUtils.encodeRSAPublicKeyToPemPkcs1(publicKey);
-    await prefs.setString('publicKey', publicKeyAsString);
+    await prefs.setString('${userId}_publicKey', publicKeyAsString);
   }
 
   /// Get user's private key
-  Future<String> getPrivateKey() async {
+  Future<String> getPrivateKey(String userId) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString('privateKey')!;
+    return prefs.getString('${userId}_privateKey')!;
   }
 
   /// Get user's public key
-  Future<String> getPublicKey() async {
+  Future<String> getPublicKey(String userId) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString('publicKey')!;
+    return prefs.getString('${userId}_publicKey')!;
   }
 
   /// For testing purposes only

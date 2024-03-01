@@ -76,7 +76,7 @@ class AuthService {
         password: password,
       );
 
-      _encryption.saveKeyPairToDeviceStorage(keyPair);
+      _encryption.saveKeyPairToDeviceStorage(userCredential.user!.uid, keyPair);
       final encodedKeyPair = _encryption.encodeKeyPairToString(keyPair);
 
       await FirebaseChatCore.instance.createUserInFirestore(

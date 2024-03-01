@@ -1,10 +1,7 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:secure_messenger/components/my_list_tile.dart';
 import 'package:secure_messenger/pages/contacts_page/contacts_page.dart';
 import 'package:secure_messenger/pages/search_page/search_page.dart';
-import 'package:secure_messenger/services/encryption/encryption_serivce.dart';
 import '../pages/settings_page.dart';
 
 class CustomDrawer extends StatelessWidget {

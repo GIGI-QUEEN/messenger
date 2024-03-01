@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart';
-import 'package:flutter_firebase_chat_core/flutter_firebase_chat_core.dart';
 import 'package:provider/provider.dart';
 import 'package:secure_messenger/pages/chat_page/chat_provider.dart';
 
 class TextMessageTile extends StatelessWidget {
-  TextMessageTile({
+  const TextMessageTile({
     super.key,
     required this.message,
     required this.borderRadius,
@@ -14,7 +13,6 @@ class TextMessageTile extends StatelessWidget {
   final TextMessage message;
   final BorderRadius borderRadius;
   final Color bgColor;
-  final FirebaseChatCore _firebaseChatCore = FirebaseChatCore.instance;
 
   @override
   Widget build(BuildContext context) {

@@ -56,10 +56,7 @@ class ChatProvider extends ChangeNotifier {
         }
         notifyListeners();
       });
-
-      // notifyListeners(); //not sure if it's needed
     });
-    //  notifyListeners(); //not sure if it's needed
   }
 
   /// Exctarct companion
@@ -90,38 +87,6 @@ class ChatProvider extends ChangeNotifier {
     log('decrypted text: $decryptedText');
     return decryptedText;
   }
-
-/*   Future<String> _decryptMessageAsSender(Encrypted textAsBase64) async {
-    final String senderPublicKey = await _encryptionService.getPublicKey();
-    final String senderPrivateKey = await _encryptionService.getPrivateKey();
-    return _encryptionService.decryptMessage(
-        textAsBase64, senderPublicKey, senderPrivateKey);
-  }
-
-  Future<String> _decryptMessageAsReceiver(Encrypted textAsBase64) async {
-    final String senderPublicKey = companion()?.metadata!['publicKey'];
-    final String receiverPrivateKey = await _encryptionService.getPrivateKey();
-    return _encryptionService.decryptMessage(
-        textAsBase64, senderPublicKey, receiverPrivateKey);
-  }
-
-  /// Encrypting message so only receiver will be able to decrypt it
-  Future<String> _encryptTextMessageForReceiver(String text) async {
-    final senderPrivateKey = await _encryptionService.getPrivateKey();
-    final receiverPublicKey = companion()!.metadata!['publicKey'];
-    final encryptedText = _encryptionService.encryptMessage(
-        text, receiverPublicKey, senderPrivateKey);
-    return encryptedText.base64;
-  }
-
-  /// Enccrypting message so only sender will be able to see it
-  Future<String> _encryptTextMessageForSender(String text) async {
-    final senderPrivateKey = await _encryptionService.getPrivateKey();
-    final senderPublicKey = await _encryptionService.getPublicKey();
-    final encryptedText = _encryptionService.encryptMessage(
-        text, senderPublicKey, senderPrivateKey);
-    return encryptedText.base64;
-  } */
 
   String _decryptMessageAsSender(Encrypted textAsBase64) {
     return _encryptionService.decryptMessage(
@@ -203,6 +168,7 @@ class ChatProvider extends ChangeNotifier {
           uri: imageUri,
           metadata: const {
             'isSeen': false,
+            'isEncrypted': false,
           });
       _firebaseChatCore.sendMessage(partialImage, roomId);
       image = null;
@@ -225,6 +191,7 @@ class ChatProvider extends ChangeNotifier {
         uri: videoUri,
         metadata: const {
           'isSeen': false,
+          'isEncrypted': false,
         },
       );
       _firebaseChatCore.sendMessage(partialVideo, roomId);

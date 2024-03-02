@@ -27,6 +27,9 @@ class ProfilePage extends StatelessWidget {
                 : UserProfile(
                     user: model.user,
                     addToContacts: model.addToContacts,
+                    removeFromContacts: model.removeFromContacts,
+                    isCurrentUser: model.isCurrentUserProfile,
+                    isContact: model.isContact,
                   ),
           );
         },
@@ -72,10 +75,19 @@ class ProfilePageAppBar extends StatelessWidget implements PreferredSizeWidget {
 }
 
 class UserProfile extends StatelessWidget {
-  const UserProfile(
-      {super.key, required this.user, required this.addToContacts});
+  const UserProfile({
+    super.key,
+    required this.user,
+    required this.addToContacts,
+    required this.isCurrentUser,
+    required this.isContact,
+    required this.removeFromContacts,
+  });
   final User user;
+  final bool isCurrentUser;
+  final bool isContact;
   final Function(String contactId) addToContacts;
+  final Function(String contactId) removeFromContacts;
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -97,12 +109,10 @@ class UserProfile extends StatelessWidget {
           const SizedBox(
             height: 20,
           ),
-          const Bio(bio: 'bio'),
-          OutlinedButton(
-              onPressed: () => addToContacts(user.id),
-              child: const Text('add')),
+          // const Bio(bio: 'bio ()'),
+          _addOrRemoveContactButton(),
           const SizedBox(
-            height: 50,
+            height: 20,
           ),
           OutlinedButton(
               onPressed: () => Navigator.push(
@@ -122,6 +132,25 @@ class UserProfile extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Widget _addOrRemoveContactButton() {
+    if (!isCurrentUser) {
+      switch (isContact) {
+        case true:
+          return OutlinedButton(
+            onPressed: () => removeFromContacts(user.id),
+            child: const Text('remove from contacts'),
+          );
+        case false:
+          return OutlinedButton(
+            onPressed: () => addToContacts(user.id),
+            child: const Text('add to contacts'),
+          );
+      }
+    } else {
+      return Container();
+    }
   }
 }
 

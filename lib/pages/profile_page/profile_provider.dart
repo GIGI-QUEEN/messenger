@@ -11,6 +11,8 @@ class ProfileProvider extends ChangeNotifier {
 
   User _user = const User(id: '');
   User get user => _user;
+  bool _isContact = false;
+  bool get isContact => _isContact;
 
   bool _isCurrentUserProfile = false;
   bool get isCurrentUserProfile => _isCurrentUserProfile;
@@ -32,6 +34,7 @@ class ProfileProvider extends ChangeNotifier {
       _isCurrentUserProfile = true;
       notifyListeners();
     }
+    checkIsContact(_user.id);
     notifyListeners();
   }
 
@@ -63,6 +66,22 @@ class ProfileProvider extends ChangeNotifier {
   void addToContacts(String contactId) {
     _databaseService.addUserToContacts(
         _firebaseChatCore.firebaseUser!.uid, contactId);
+    fetchUserData();
+
+    //notifyListeners();
+  }
+
+  void removeFromContacts(String contactId) {
+    _databaseService.removeUserFromContacts(
+        _firebaseChatCore.firebaseUser!.uid, contactId);
+    fetchUserData();
+    //notifyListeners();
+  }
+
+  void checkIsContact(String otherUserId) async {
+    _isContact = await _databaseService.isContact(
+        _firebaseChatCore.firebaseUser!.uid, otherUserId);
+    notifyListeners();
   }
 
   ProfileProvider({required this.userId}) {

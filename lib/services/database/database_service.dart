@@ -40,6 +40,12 @@ class DatabaseService {
     });
   }
 
+  void removeUserFromContacts(String userId, String contactId) async {
+    await _firestore.collection('users').doc(userId).update({
+      'contacts': FieldValue.arrayRemove([contactId])
+    });
+  }
+
   Future<Map<String, dynamic>> getUserById(String userId) async {
     return await fetchUser(_firestore, userId, 'users');
   }
@@ -53,6 +59,22 @@ class DatabaseService {
       final Map<String, dynamic> data =
           Map<String, dynamic>.from(snapshot.data() as dynamic);
       return data['contacts'] as List<dynamic>;
+    });
+  }
+
+  Future<bool> isContact(String userId, String otherUserId) async {
+    return await _firestore.collection('users').doc(userId).get().then((doc) {
+      if (doc.exists) {
+        final List<dynamic> contacts = doc.data()!['contacts'] as List<dynamic>;
+        final List<String> stringContacts =
+            contacts.map((contact) => contact.toString()).toList();
+        if (stringContacts.contains(otherUserId)) {
+          return true;
+        }
+        return false;
+      } else {
+        return false;
+      }
     });
   }
 

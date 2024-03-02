@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart';
 import 'package:flutter_firebase_chat_core/flutter_firebase_chat_core.dart';
@@ -24,6 +26,7 @@ class MessagesList extends StatelessWidget {
         messages.where((message) => message.metadata!['isEncrypted'] == true);
     final unsecuredMessages =
         messages.where((message) => message.metadata!['isEncrypted'] == false);
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 30),
       child: ListView.builder(

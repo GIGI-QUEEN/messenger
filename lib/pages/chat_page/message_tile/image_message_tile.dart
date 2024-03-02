@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart';
 
@@ -7,7 +9,7 @@ class ImageMessageTile extends StatelessWidget {
     required this.message,
   });
   final ImageMessage message;
-  @override
+
   @override
   Widget build(BuildContext context) {
     return ClipRRect(

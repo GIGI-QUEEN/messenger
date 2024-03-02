@@ -37,7 +37,6 @@ class ContactsPage extends StatelessWidget {
                 itemCount: model.contacts.length,
                 itemBuilder: (context, index) {
                   final user = model.contacts[index];
-                  log('USER: $user');
                   return UserTile(
                     user: user,
                     onTap: () async {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:secure_messenger/components/my_list_tile.dart';
 import 'package:secure_messenger/pages/contacts_page/contacts_page.dart';
+import 'package:secure_messenger/pages/qr_page/qr_code_page.dart';
 import 'package:secure_messenger/pages/search_page/search_page.dart';
 import '../pages/settings_page.dart';
 

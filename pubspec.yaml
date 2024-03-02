@@ -32,6 +32,8 @@ dependencies:
   pointycastle: ^3.7.4
   shared_preferences: ^2.2.2
   basic_utils: ^5.7.0
+  qr_code_scanner: ^1.0.1
+  vibration: ^1.8.4
 
 dev_dependencies:
   flutter_test:

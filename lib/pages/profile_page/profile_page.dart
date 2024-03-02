@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart';
 import 'package:provider/provider.dart';
 import 'package:secure_messenger/components/avatar.dart';
+import 'package:secure_messenger/pages/contacts_page/contacts_page.dart';
 import 'package:secure_messenger/pages/profile_page/editing_view.dart';
 import 'package:secure_messenger/pages/profile_page/profile_provider.dart';
+import 'package:secure_messenger/pages/qr_page/qr_code_page.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({
@@ -97,7 +99,26 @@ class UserProfile extends StatelessWidget {
           ),
           const Bio(bio: 'bio'),
           OutlinedButton(
-              onPressed: () => addToContacts(user.id), child: const Text('add'))
+              onPressed: () => addToContacts(user.id),
+              child: const Text('add')),
+          const SizedBox(
+            height: 50,
+          ),
+          OutlinedButton(
+              onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const QRCodePage(),
+                    ),
+                  ),
+              style: ButtonStyle(
+                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                ),
+              ),
+              child: const Text('QR Code')),
         ],
       ),
     );

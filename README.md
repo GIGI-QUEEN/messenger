@@ -1,14 +1,37 @@
-# secure_messenger
+# secure-messenger
+
+Secure-messenger is a Flutter app that facilitates communication through text, images, and videos, with additional features like QR code generation and encrypted end-to-end messages.
+
+# Audit
+
+For the sake of simplicity the audit process was recorded on videos: 
+
+- []()
+- [QR Code generation and scanning](https://www.youtube.com/shorts/AEY-c-Gs2is) 
+
+Full project description: https://github.com/01-edu/public/tree/master/subjects/mobile-dev/secure-messenger
 
 
-## Resources
+Audit questions: https://github.com/01-edu/public/tree/master/subjects/mobile-dev/secure-messenger/audit
 
-- [FlutterFire Cloud Messaging](https://firebase.flutter.dev/docs/messaging/usage)
-- Mitch Koko: [Basic Messenger](https://www.youtube.com/watch?v=5xU5WH2kEc0), [Login Logic](https://www.youtube.com/watch?v=4fucdtPwTWI), [Delete Posts](https://www.youtube.com/watch?v=3owMkQP6SHc), [Push Notifications](https://www.youtube.com/watch?v=A3M0N_B-CR0), [User Profile](https://www.youtube.com/watch?v=TpW7nLL57uQ)
-- [User search](https://www.youtube.com/watch?v=2d1fslyxBjQ)
-- [Sending Images](https://www.youtube.com/watch?v=BCh-St2afL0)
 
-## Audit
+# Technologies
 
--[https://github.com/01-edu/public/tree/master/subjects/mobile-dev/secure-messenger](https://github.com/01-edu/public/tree/master/subjects/
-mobile-dev/secure-messenger)
+**Backend**:
+
+- [Firebase: Authentication, Firestore Database and Storage](https://firebase.google.com/)
+
+**Frontend**:
+
+- State management with Provider pattern: - https://docs.flutter.dev/data-and-backend/state-mgmt/simple
+
+# True Nerd Quest: Run Project Locally
+
+- Proceed to the official [Flutter documentation](https://docs.flutter.dev/get-started/install), be ready to get your socks knocked off!
+- Clone this repo to your machine.
+- Run `flutter pub get`
+- Run `main.dart` file with debugger (`ctrl+F5` in VSCode)
+
+## Attributions
+
+Project design inspiration [Dribbble](https://dribbble.com/shots/7160876-WhatsApp-App-Redesign/attachments/163903?mode=media)

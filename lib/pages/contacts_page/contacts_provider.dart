@@ -11,6 +11,9 @@ class ContactsProvider extends ChangeNotifier {
 
   Future<String> startChat(types.User otherUser) async {
     final room = await _firebaseChatCore.createRoom(otherUser);
+    _databaseService.addTypingStatusSubcollection(
+        room.id, _firebaseChatCore.firebaseUser!.uid);
+    _databaseService.addTypingStatusSubcollection(room.id, otherUser.id);
     return room.id;
   }
 

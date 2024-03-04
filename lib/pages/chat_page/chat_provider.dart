@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
-import 'package:chewie/chewie.dart';
 import 'package:encrypt/encrypt.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart';
@@ -10,11 +9,13 @@ import 'package:secure_messenger/services/chat/chat_service.dart';
 import 'package:secure_messenger/services/database/database_service.dart';
 import 'package:secure_messenger/services/encryption/encryption_serivce.dart';
 import 'package:secure_messenger/services/media/media_service.dart';
-import 'package:video_player/video_player.dart';
 
 class ChatProvider extends ChangeNotifier {
   final String roomId;
   bool isSecured = false;
+  bool _isCompanionTyping = false;
+  bool get isCompanionTyping => _isCompanionTyping;
+  bool _isCurrentUserTyping = false;
   Room? _room;
   Room? get room => _room;
   List<Message> _messages = [];
@@ -45,6 +46,8 @@ class ChatProvider extends ChangeNotifier {
   void getRoom() {
     _roomSubscription = _firebaseChatCore.room(roomId).listen((roomStream) {
       _room = roomStream;
+      trackCompanionTypingStatus();
+
       _messagesSubscription?.cancel();
       _messagesSubscription =
           _firebaseChatCore.messages(room!).listen((messagesStream) {
@@ -84,7 +87,6 @@ class ChatProvider extends ChangeNotifier {
         decryptedText = _decryptMessageAsReceiver(textAsBase64ForReceiver);
       }
     }
-    log('decrypted text: $decryptedText');
     return decryptedText;
   }
 
@@ -213,9 +215,37 @@ class ChatProvider extends ChangeNotifier {
     currentUserPrivateKey = await _encryptionService.getPrivateKey(userId);
   }
 
+  void trackCompanionTypingStatus() {
+    if (companion() != null) {
+      _databaseService
+          .getTypingStatusStream(roomId, companion()!.id)
+          .listen((event) {
+        for (final doc in event.docs) {
+          final bool typing = doc.data()['isTyping'];
+          _isCompanionTyping = typing;
+          notifyListeners();
+        }
+      });
+    }
+  }
+
+  void changeCurrentUserTypingStatus() {
+    textEditingController.addListener(() {
+      if (textEditingController.text.isNotEmpty) {
+        _isCurrentUserTyping = true;
+      } else {
+        _isCurrentUserTyping = false;
+      }
+      _databaseService.changeTypingStatus(
+          roomId, _firebaseChatCore.firebaseUser!.uid, _isCurrentUserTyping);
+    });
+  }
+
   ChatProvider({required this.roomId}) {
     getRoom();
     exctactCurrentUserSecurityKeys();
+    changeCurrentUserTypingStatus();
+    // trackTypingStatus();
   }
 
   @override

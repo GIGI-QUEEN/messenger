@@ -108,4 +108,94 @@ class DatabaseService {
       return data['imageUrl'] as String;
     });
   }
+
+  Future<bool> _checkIfTypingSubCollectionExists(String roomId) async {
+    return _firestore
+        .collection('rooms')
+        .doc(roomId)
+        .collection('typingStatus')
+        .get()
+        .then((snapshot) {
+      if (snapshot.size == 0) {
+        return false;
+      }
+      return true;
+    });
+  }
+
+  /// Adds typingStatus subcollection. Will not add collection if isTyping already exists
+  void addTypingStatusSubcollection(String roomId, String userId) async {
+    _checkIfTypingSubCollectionExists(roomId);
+    final isCollectionExist = await _checkIfTypingSubCollectionExists(roomId);
+    if (!isCollectionExist) {
+      try {
+        await _firestore
+            .collection('rooms')
+            .doc(roomId)
+            .collection('typingStatus')
+            .add(
+          {
+            'userId': userId,
+            'isTyping': false,
+          },
+        );
+        //log('Typing subcollection added successfully');
+      } catch (e) {
+        log('Error adding typing status subcollection: $e');
+      }
+    }
+  }
+
+  void changeTypingStatus(String roomId, String userId, bool isTyping) async {
+    await _firestore
+        .collection('rooms')
+        .doc(roomId)
+        .collection('typingStatus')
+        .where('userId', isEqualTo: userId)
+        .get()
+        .then((snapshot) {
+      if (snapshot.docs.isNotEmpty) {
+        // Update the isTyping field of the document
+        DocumentReference docRef = snapshot.docs.first.reference;
+        docRef.update({'isTyping': isTyping});
+        //print('Typing status updated successfully.');
+      }
+    });
+  }
+
+  Stream<QuerySnapshot<Map<String, dynamic>>> getTypingStatusStream(
+      String roomId, String userId) {
+    return _firestore
+        .collection('rooms')
+        .doc(roomId)
+        .collection('typingStatus')
+        .where('userId', isEqualTo: userId)
+        .snapshots();
+  }
+
+  void checkIfRoomExists(String roomId) async {
+    await _firestore.collection('rooms').doc(roomId).get().then((doc) {
+      if (doc.exists) {
+        log('exists');
+      } else {
+        log("doesn't exist");
+      }
+    });
+  }
 }
+
+
+/* 
+
+room (document):
+  messages(subcollection)
+
+  (room fields)
+  createdAt: Timestamp
+  imageUrl: string
+  metadata: map
+  name: string
+  type: string
+  updatedAt: Timestamp
+  userIds: array
+ */

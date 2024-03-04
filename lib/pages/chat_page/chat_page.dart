@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:secure_messenger/components/avatar.dart';
 import 'package:secure_messenger/pages/chat_page/chat_provider.dart';
 import 'package:secure_messenger/pages/chat_page/message_list.dart';
+import 'package:secure_messenger/pages/chat_page/typing_indicator/typing_indicator.dart';
 import 'package:secure_messenger/pages/chat_page/user_input.dart';
 import 'package:secure_messenger/themes/light_mode.dart';
 import 'package:secure_messenger/utils/navigation.dart';
@@ -57,6 +58,9 @@ class ChatPage extends StatelessWidget {
                     roomid: model.roomId,
                     isSecured: model.isSecured,
                   ),
+                ),
+                TypingIndicator(
+                  showIndicator: model.isCompanionTyping,
                 ),
                 UserInput(),
               ]),
